@@ -12,9 +12,11 @@ const Popup = () => {
 
   return (
       <div className="popup-container">
-        <h1 className="popup-title">Download ALl PDFs</h1>
-        <button className="popup-button" onClick={handleAction1}>Download all open PDFs</button>
-        <button className="popup-button" onClick={handleAction2}>Download all PDF links in the current page</button>
+        <h1 className="popup-title">Download All PDFs</h1>
+        <ul className="popup-action-list">
+          <li className="popup-action-item"><button className="popup-button" onClick={handleAction1}>Download all open PDFs</button></li>
+          <li className="popup-action-item"><button className="popup-button" onClick={handleAction2}>Download all PDF links in the current page</button></li>
+        </ul>
       </div>
   );
 };

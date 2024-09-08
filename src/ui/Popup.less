@@ -2,13 +2,17 @@
 @hover-color: #0056b3;
 @active-color: #004085;
 
+html {
+  width: max-content;
+}
+
 .popup-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  padding: 20px;
-  min-width: 200px;
+  align-items: start;
+  padding: 10px;
+  min-width: 300px;
   min-height: 150px;
   background-color: #f9f9f9;
   border-radius: 10px;
@@ -19,6 +23,18 @@
   font-size: 18px;
   margin-bottom: 20px;
   color: #333;
+}
+
+ul.popup-action-list {
+  padding: 0;
+}
+
+li.popup-action-item {
+  display: flex;
+
+  > * {
+    flex: 1;
+  }
 }
 
 .popup-button {
