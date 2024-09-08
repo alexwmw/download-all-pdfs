@@ -1,6 +1,8 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client'; // Import createRoot from react-dom/client
 import Popup from './ui/Popup';
 
 // Render the Popup component into the DOM
-ReactDOM.render(<Popup />, document.getElementById('root'));
+const rootElement  = document.getElementById('root')
+const root = createRoot(rootElement)
+root.render(<Popup/>)
