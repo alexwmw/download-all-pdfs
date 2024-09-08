@@ -9,6 +9,7 @@ module.exports = {
     background: './src/background.js',
     content: './src/content.js',
     popup: './src/index.jsx', // Main entry for your React popup
+    options: './src/options.jsx',
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -68,6 +69,11 @@ module.exports = {
       template: './src/index.html',
       filename: 'popup.html',
       chunks: ['popup'], // Only include the index.js bundle
+    }),
+    new HtmlWebpackPlugin({
+      template: './src/options.html',
+      filename: 'options.html',
+      chunks: ['options'], // Only include the options.js bundle
     }),
     new CopyWebpackPlugin({
       patterns: [{ from: 'src/manifest.json', to: 'manifest.json' }],

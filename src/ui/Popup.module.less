@@ -30,6 +30,27 @@ button {
   font-weight: normal;
 }
 
+.optionsPage {
+
+  p {
+    max-width: 260px;
+    line-height: 18px;
+  }
+
+  button {
+    margin-left: auto;
+  }
+
+  label {
+    font-family: @body;
+  }
+
+  input {
+    margin: 8px 8px 0 0;
+    transform: translateY(1px);
+
+  }
+}
 
 .popupContainer {
   display: flex;
@@ -48,7 +69,16 @@ button {
     border: 1px solid @secondary-color;
     background-color: @light-gray;
     border-radius: 5px;
-    margin-inline: 5px;
+    margin-inline: 8px;
+    //transform: translateY(-70px);
+    height: 80%;
+    position: absolute;
+    inset: 0 0 0 0;
+
+    .buttons {
+      margin-top: 30px;
+    }
+
   }
 }
 
@@ -63,19 +93,6 @@ button {
   padding: 20px 18px;
 
 
-  svg {
-    color: @text-color;
-    transition: background-color 0.3s ease;
-    cursor: pointer;
-
-    &:hover {
-      color: @hover-color;
-    }
-
-    &:active {
-      color: @active-color;
-    }
-  }
 }
 
 ul.popupActionList {
@@ -126,11 +143,35 @@ li.popupActionItem {
   }
 }
 
+.popupIconButton {
+  background-color: transparent;
+  border: none;
+  font-size: inherit;
+  cursor: pointer;
+
+  &:hover svg {
+    color: @hover-color;
+  }
+
+  &:active svg {
+    color: @active-color;
+  }
+
+  svg {
+    color: @text-color;
+    transition: color 0.3s ease;
+  }
+
+}
+
 .popupTextLink {
   color: @secondary-color;
   cursor: pointer;
   transition: color 0.3s ease;
   text-decoration: underline;
+  background: transparent;
+  border: none;
+  margin-top: 4px;
 
   &:hover {
     color: @hover-color;

@@ -29,12 +29,16 @@ const HelpDialog = ({ title, helpId, currentHelp, onClose }) => {
   )
   return (
     <dialog open={currentHelp === helpId} onClose={onClose}>
-      <h3>'{title}'</h3>
-      {helpId === 1 && content1}
-      {helpId === 2 && content2}
-      <form method="dialog">
-        <button className={classes.popupButton}>Close</button>
-      </form>
+      <div className={classes.content}>
+        <h3>'{title}'</h3>
+        {helpId === 1 && content1}
+        {helpId === 2 && content2}
+      </div>
+      <div className={classes.buttons}>
+        <form method="dialog">
+          <button className={classes.popupButton}>Close</button>
+        </form>
+      </div>
     </dialog>
   )
 }

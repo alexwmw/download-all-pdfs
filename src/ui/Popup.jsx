@@ -3,7 +3,8 @@ import classes from './Popup.module.less'
 import ActionList from './ActionList'
 import HelpDialog from './HelpDialog'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCog } from '@fortawesome/free-solid-svg-icons'
+import { faBackwardStep, faCog } from '@fortawesome/free-solid-svg-icons'
+import Settings from './Settings'
 
 async function getCurrentPdfTabs() {
   let queryOptions = {
@@ -12,10 +13,10 @@ async function getCurrentPdfTabs() {
   return await chrome.tabs.query(queryOptions)
 }
 
-async function initDownload(urls) {
+async function initDownload(tabs) {
   return await chrome.runtime.sendMessage({
     action: 'download',
-    urls,
+    tabs,
   })
 }
 
@@ -25,7 +26,7 @@ const Popup = () => {
   const [pagePdfs, setPagePdfs] = useState([])
   const [queue, setQueue] = useState([])
   const [help, setHelp] = useState(0)
-  const [defaultAction, setDefaultAction] = useState(null)
+  const [showSettings, setShowSettings] = useState(false)
 
   useEffect(() => {
     getCurrentPdfTabs().then((tabs) => {
@@ -33,9 +34,6 @@ const Popup = () => {
     })
     chrome.storage.session.get('queue').then((data) => {
       setQueue(data.queue ?? [])
-    })
-    chrome.storage.session.get('defaultAction').then((data) => {
-      setDefaultAction(data.defaultAction ?? null)
     })
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area === 'session' && changes.queue?.newValue) {
@@ -58,7 +56,7 @@ const Popup = () => {
       disabled: tabPdfs?.length === 0 ?? true,
       action: () => {
         setInitiated(true)
-        const success = initDownload(tabPdfs.map((tab) => tab.url))
+        const success = initDownload(tabPdfs)
         if (success) console.log('Downloading all open PDFs.')
       },
       showHelp: () => setHelp(1),
@@ -72,48 +70,54 @@ const Popup = () => {
     },
   ]
 
-  useEffect(() => {
-    if (defaultAction) {
-      actions.filter((item) => item.id === defaultAction)[0]?.action()
-    }
-  }, [defaultAction])
-
   return (
     <>
       <h1 className={classes.popupTitle}>
         Download All PDFs
-        <FontAwesomeIcon icon={faCog} />
+        <button
+          title={'Toggle show settings'}
+          onClick={() => setShowSettings(!showSettings)}
+          tabIndex={1}
+          className={classes.popupIconButton}
+        >
+          <FontAwesomeIcon icon={showSettings ? faBackwardStep : faCog} />
+        </button>
       </h1>
-      <div className={classes.popupContainer}>
-        {!initiated && queue.length === 0 && <ActionList actions={actions} />}
-        {queue.length > 0 && (
-          <div className={classes.inProgress}>
-            <p>Downloads in progress:</p>
-            <ul>
-              {queue.map((url, index) => {
-                return (
-                  <li key={index}>
-                    <div className={classes.spinner} />
-                    <div title={url} className={classes.text}>
-                      {url.split('//')[1]}
-                    </div>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-        )}
-        {actions.map(({ title }, index) => {
-          return (
-            <HelpDialog
-              title={title}
-              helpId={index + 1}
-              currentHelp={help}
-              onClose={() => setHelp(0)}
-            />
-          )
-        })}
-      </div>
+      {showSettings ? (
+        <Settings />
+      ) : (
+        <div className={classes.popupContainer}>
+          {!initiated && queue.length === 0 && <ActionList actions={actions} />}
+          {queue.length > 0 && (
+            <div className={classes.inProgress}>
+              <p>Downloads in progress:</p>
+              <ul>
+                {queue.map((tab, index) => {
+                  return (
+                    <li key={index}>
+                      <div className={classes.spinner} />
+                      <div title={tab.url} className={classes.text}>
+                        {tab.url.split('//')[1]}
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          )}
+          {actions.map(({ title, id }, index) => {
+            return (
+              <HelpDialog
+                key={{ id }}
+                title={title}
+                helpId={index + 1}
+                currentHelp={help}
+                onClose={() => setHelp(0)}
+              />
+            )
+          })}
+        </div>
+      )}
     </>
   )
 }

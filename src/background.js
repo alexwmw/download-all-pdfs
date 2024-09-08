@@ -1,11 +1,17 @@
-const download = (url, setFinished) => {
-  chrome.downloads.download({ url: url }, setFinished)
+const download = async (item, setFinished) => {
+  const { doClose } = await chrome.storage.local.get(['doClose'])
+  chrome.downloads.download({ url: item.url }, () => {
+    if (doClose && item.hasOwnProperty('id')) {
+      chrome.tabs.remove(item.id)
+    }
+    setFinished()
+  })
 }
 
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.action === 'download') {
     const storage = await chrome.storage.session.get()
-    const queue = [...(storage.queue ?? []), ...request.urls]
+    const queue = [...(storage.queue ?? []), ...request.tabs]
     chrome.storage.session.set({ queue })
     return true
   }
@@ -18,5 +24,6 @@ chrome.storage.onChanged.addListener((changes, area) => {
     download(item, () => {
       chrome.storage.session.set({ queue })
     })
+    return true
   }
 })

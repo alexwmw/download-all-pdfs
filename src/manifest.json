@@ -13,9 +13,9 @@
     "storage",
     "tabs",
     "activeTab",
-    "downloads",
-    "downloads.ui"
+    "downloads"
   ],
+  "options_page": "options.html",
   "content_scripts": [
     {
       "matches": [
