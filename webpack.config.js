@@ -1,8 +1,7 @@
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin'); // Import the CleanWebpackPlugin
-
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin') // Import the CleanWebpackPlugin
 
 module.exports = {
   mode: 'development', // Change to 'production' for production builds
@@ -14,6 +13,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js', // Output files will be named according to entry points
+    clean: true,
   },
   module: {
     rules: [
@@ -23,18 +23,40 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env', '@babel/preset-react'],
+            presets: [
+              '@babel/preset-env',
+              ['@babel/preset-react', { runtime: 'automatic' }],
+            ],
           },
         },
       },
       {
-        test: /\.less$/,
+        test: /\.module\.less$/,
         use: [
           'style-loader',
-          'css-loader',
-          'less-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              modules: {
+                localIdentName: '[name]__[local]___[hash:base64:5]',
+                namedExport: false,
+              },
+              importLoaders: 2,
+              sourceMap: true,
+            },
+          },
+          {
+            loader: 'less-loader',
+            options: {
+              lessOptions: {
+                javascriptEnabled: true,
+              },
+            },
+          },
         ],
+        include: path.resolve(__dirname, 'src'),
       },
+      // other rules...
     ],
   },
   resolve: {
@@ -48,11 +70,9 @@ module.exports = {
       chunks: ['popup'], // Only include the index.js bundle
     }),
     new CopyWebpackPlugin({
-      patterns: [
-        { from: 'src/manifest.json', to: 'manifest.json' }
-      ],
+      patterns: [{ from: 'src/manifest.json', to: 'manifest.json' }],
     }),
   ],
   devtool: 'source-map',
-  watch: process.env.NODE_ENV === 'development' // Watch mode based on environment
-};
+  watch: process.env.NODE_ENV === 'development', // Watch mode based on environment
+}
