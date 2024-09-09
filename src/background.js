@@ -1,9 +1,16 @@
 const download = async (item, setFinished) => {
-  const { doClose } = await chrome.storage.local.get(['doClose'])
+  const { doClose, history } = await chrome.storage.local.get([
+    'doClose',
+    'history',
+  ])
   chrome.downloads.download({ url: item.url }, () => {
     if (doClose && item.hasOwnProperty('id')) {
       chrome.tabs.remove(item.id)
     }
+    const h = [item, ...(history ?? []).slice(0, 99)]
+    console.log({ history: h })
+    chrome.storage.local.set({ history: h })
+
     setFinished()
   })
 }
@@ -23,7 +30,16 @@ chrome.storage.onChanged.addListener((changes, area) => {
     const item = queue.shift()
     download(item, () => {
       chrome.storage.session.set({ queue })
+    }).then(() => {
+      chrome.storage.local.set({ queue })
     })
     return true
   }
 })
+
+async function getCurrentPdfTabs() {
+  let queryOptions = {
+    url: ['http://*/*.pdf', 'https://*/*.pdf'],
+  }
+  return await chrome.tabs.query(queryOptions)
+}

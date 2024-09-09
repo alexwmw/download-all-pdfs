@@ -78,6 +78,9 @@ module.exports = {
     new CopyWebpackPlugin({
       patterns: [{ from: 'src/manifest.json', to: 'manifest.json' }],
     }),
+    new CopyWebpackPlugin({
+      patterns: [{ from: 'public' }],
+    }),
   ],
   devtool: 'source-map',
   watch: process.env.NODE_ENV === 'development', // Watch mode based on environment

@@ -1,6 +1,6 @@
 import classes from './Popup.module.less'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
+import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons'
 import React from 'react'
 
 const ActionList = ({ actions = [] }) => {
@@ -13,7 +13,8 @@ const ActionList = ({ actions = [] }) => {
           className={classes.popupButton}
           onClick={item.action}
         >
-          {item.title} <FontAwesomeIcon icon={faChevronRight} />
+          {item.title}
+          <FontAwesomeIcon icon={faFileArrowDown} />
         </button>
         <button
           tabIndex={index * 2 + 2}
