@@ -4,7 +4,7 @@ const download = async (item, setFinished) => {
     'history',
   ])
   chrome.downloads.download({ url: item.url }, () => {
-    if (doClose && item.hasOwnProperty('id')) {
+    if ((doClose ?? true) && item.hasOwnProperty('id')) {
       chrome.tabs.remove(item.id)
     }
     const h = [item, ...(history ?? []).slice(0, 99)]
@@ -36,10 +36,33 @@ chrome.storage.onChanged.addListener((changes, area) => {
     return true
   }
 })
-
-async function getCurrentPdfTabs() {
-  let queryOptions = {
-    url: ['http://*/*.pdf', 'https://*/*.pdf'],
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (
+    area === 'session' &&
+    changes.queue?.newValue &&
+    changes.queue?.newValue.length === 0
+  ) {
+    console.log('Queue empty')
+    chrome.notifications.create(
+      'queueEmpty',
+      {
+        type: 'basic',
+        iconUrl: './48.png',
+        title: 'YOUR_EXTENSION_NAME',
+        message: 'SOME_MESSAGE',
+        buttons: [
+          {
+            title: 'Ok',
+          },
+          {
+            title: 'Cancel',
+          },
+        ],
+      },
+      () => {
+        console.log('Notified', chrome.runtime.lastError)
+        //
+      }
+    )
   }
-  return await chrome.tabs.query(queryOptions)
-}
+})

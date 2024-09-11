@@ -1,17 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=SUSE:wght@100..800&display=swap');
-
-@heading: 'suse', 'Arial', sans-serif;
-@button: @heading;
-@body: 'inter', 'Arial', sans-serif;
-;
-@primary-color: #fa4141;
-@secondary-color: #393fd3;
-@hover-color: #b30000;
-@active-color: #850000;
-@disabled-color: #ccc;
-@text-color: #333;
-@light-gray: #f9f9f9;
-
+@import '../less/constants.less';
 
 html {
   width: max-content;
@@ -23,7 +11,9 @@ body {
 
 h1, h2, h3, h4 {
   font-family: @heading;
+  text-wrap: pretty;
 }
+
 
 button {
   font-family: @button;
@@ -36,7 +26,7 @@ button {
     max-width: 260px;
     line-height: 18px;
   }
-
+ 
   h4 {
     margin-bottom: 6px;
   }
@@ -67,222 +57,13 @@ button {
   align-items: start;
   padding: 10px;
   width: 360px;
-  min-height: 150px;
+  min-height: 100px;
   border-radius: 10px;
   font-family: @body, 'Arial', sans-serif;
   margin: 8px;
 
-  dialog {
-    //margin-block: 20px;
-    border: 1px solid @secondary-color;
-    background-color: @light-gray;
-    border-radius: 5px;
-    margin-inline: 8px;
-    //transform: translateY(-70px);
-    height: 80%;
-    position: absolute;
-    inset: 0 0 0 0;
-
-    .buttons {
-      margin-top: 30px;
-    }
-
-  }
 }
 
-.popupTitle {
-  font-size: 18px;
-  margin-bottom: 10px;
-  margin-top: 0;
-  color: @text-color;
-  display: flex;
-  justify-content: space-between;
-  background-color: @light-gray;
-  padding: 20px 18px;
-  position: sticky;
-  top: 0;
-
-}
-
-ul.popupActionList {
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-li.popupActionItem {
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-
-  .popupButton {
-    width: 100%;
-  }
-}
-
-.popupButton {
-  background-color: @primary-color;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 10px 20px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
-  text-align: left;
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  font-family: @button;
-  font-weight: 400;
 
 
-  &:hover {
-    background-color: @hover-color;
-
-    &:not([disabled]) {
-      @keyframes download {
-        from {
-          transform: translateY(-10px);
-          scale: 1.1;
-          opacity: 0.2;
-        }
-        to {
-          transform: translateY(0);
-        }
-      }
-
-      svg {
-
-        animation: download 0.6s ease;
-      }
-    }
-  }
-
-  &:active {
-    background-color: @active-color;
-  }
-
-  &[disabled] {
-    background-color: @disabled-color;
-    pointer-events: none;
-  }
-}
-
-.popupIconButton {
-  background-color: transparent;
-  border: none;
-  font-size: inherit;
-  cursor: pointer;
-
-  &:hover svg {
-    color: @hover-color;
-  }
-
-  &:active svg {
-    color: @active-color;
-  }
-
-  svg {
-    color: @text-color;
-    transition: color 0.3s ease;
-  }
-
-  &.deleteHistory {
-    margin-top: 16px;
-    margin-right: auto;
-    margin-left: 0;
-    background: @light-gray;
-    display: flex;
-    gap: 10px;
-    padding: 6px;
-
-    &[disabled] {
-      color: @disabled-color;
-
-      svg {
-        color: @disabled-color;
-      }
-
-      pointer-events: none;
-    }
-  }
-}
-
-.popupTextLink {
-  color: @secondary-color;
-  cursor: pointer;
-  transition: color 0.3s ease;
-  text-decoration: underline;
-  background: transparent;
-  border: none;
-  margin-top: 4px;
-
-  &:hover {
-    color: @hover-color;
-  }
-
-  &:active {
-    color: @active-color;
-  }
-
-}
-
-.spinner {
-  border: 9px solid @light-gray;
-  border-top: 9px solid @secondary-color;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: spin 2s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.inProgress {
-  font-size: 14px;
-
-  p {
-    font-weight: 700;
-  }
-
-  .spinner {
-    display: inline-block;
-    margin: -26px;
-    scale: 0.25;
-  }
-
-  ul {
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  li {
-    display: flex;
-    list-style: none;
-    align-items: center;
-    gap: 20px;
-    font-family: "Courier New", Courier, monospace;
-    text-decoration-line: underline;
-    text-decoration-style: dotted;
-
-    .text {
-      display: inline-block;
-      width: 250px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
-}
 

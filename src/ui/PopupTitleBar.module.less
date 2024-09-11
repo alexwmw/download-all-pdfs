@@ -1,0 +1,54 @@
+@import '../less/constants.less';
+
+.popupTitleBar {
+  font-size: 18px;
+  margin-bottom: 10px;
+  margin-top: 0;
+  color: @text-color;
+  display: flex;
+  justify-content: space-between;
+  background-color: @light-gray;
+  padding: 20px 18px;
+  position: sticky;
+  top: 0;
+}
+
+.popupIconButton {
+  background-color: transparent;
+  border: none;
+  font-size: inherit;
+  cursor: pointer;
+
+  &:hover svg {
+    color: @hover-color;
+  }
+
+  &:active svg {
+    color: @active-color;
+  }
+
+  svg {
+    color: @text-color;
+    transition: color 0.3s ease;
+  }
+
+  &.deleteHistory {
+    margin-top: 16px;
+    margin-right: auto;
+    margin-left: 0;
+    background: @light-gray;
+    display: flex;
+    gap: 10px;
+    padding: 6px;
+
+    &[disabled] {
+      color: @disabled-color;
+
+      svg {
+        color: @disabled-color;
+      }
+
+      pointer-events: none;
+    }
+  }
+}

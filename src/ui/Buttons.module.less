@@ -1,0 +1,60 @@
+@import '../less/constants.less';
+
+.button {
+
+  background-color: transparent;
+  color: @body;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-family: @button;
+  font-weight: 400;
+
+  &.fullWidth {
+    width: 100%
+  }
+
+
+  &[disabled] {
+    background-color: @disabled-color;
+    pointer-events: none;
+  }
+}
+
+.primary {
+  background-color: @primary-color;
+  color: white;
+  padding: 10px;
+  font-size: 16px;
+
+  &:hover {
+    background-color: @hover-color;
+  }
+
+  &:active {
+    background-color: @active-color;
+  }
+
+}
+
+.tertiary {
+  padding: 0;
+  font-size: 14px;
+  text-decoration: underline;
+  color: @secondary-color;
+  margin-top: 6px;
+
+  &:hover {
+    color: @hover-color;
+  }
+
+  &:active {
+    color: @active-color;
+  }
+
+}
