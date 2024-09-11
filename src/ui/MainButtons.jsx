@@ -3,17 +3,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFile, faFileArrowDown } from '@fortawesome/free-solid-svg-icons'
 import React, { useState } from 'react'
 import useGetCurrentPdfs from '../hooks/useGetCurrentPdfs'
-import { PrimaryButton, TertiaryButton } from './Buttons'
-import useInitDownload from '../hooks/useInitDownload'
+import { DialogButton, PrimaryButton } from './Buttons'
 
-const MainButtonListItem = ({ title, onClick, disabled }) => {
+const MainButtonListItem = ({ title, action, disabled }) => {
   return (
     <li key={title} className={classes.mainButtonListItem}>
-      <PrimaryButton fullWidth={true} disabled={disabled} onClick={onClick}>
+      <PrimaryButton fullWidth={true} disabled={disabled} onClick={action}>
         <FontAwesomeIcon icon={disabled ? faFile : faFileArrowDown} />
         {title}
       </PrimaryButton>
-      <TertiaryButton title="What does this mean?" onClick={() => {}} />
+      <DialogButton title="What does this mean?" />
     </li>
   )
 }
@@ -23,14 +22,18 @@ const MainButtons = ({ download }) => {
   const [downloadItem, setDownloadItem] = useState(undefined)
 
   const tabsItem = {
-    title: `Download ${tabPdfs?.length || 'all'} PDF${tabPdfs?.length === 1 ? '' : 's'} open in current tabs`,
+    title: tabPdfs?.length
+      ? `Download ${tabPdfs?.length || 'all'} PDF${tabPdfs?.length === 1 ? '' : 's'} open in current tabs`
+      : 'No PDF tabs found',
     disabled: tabPdfs?.length === 0 ?? true,
-    onClick: () => setDownloadItem(tabPdfs),
+    action: () => setDownloadItem(tabPdfs),
   }
   const linkItem = {
-    title: `Download ${linkPdfs?.length || 'all'} PDF link${linkPdfs?.length === 1 ? '' : 's'} in the current page`,
+    title: linkPdfs?.length
+      ? `Download ${linkPdfs?.length || 'all'} PDF link${linkPdfs?.length === 1 ? '' : 's'} found on page`
+      : 'No PDF links found',
     disabled: linkPdfs?.length === 0 ?? true,
-    onClick: () => setDownloadItem(linkPdfs),
+    action: () => setDownloadItem(linkPdfs),
   }
 
   download(downloadItem)

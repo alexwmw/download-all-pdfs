@@ -1,14 +1,28 @@
-import classes from './Popup.module.less'
+import classes from './PopupContent.module.less'
 import QueueContent from './QueueContent'
 import HistoryContent from './HistoryContent'
 import Settings from './Settings'
 import MainButtons from './MainButtons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons'
 
 const PopupContent = ({ history, queue, currentContent, download }) => {
   let content
   switch (currentContent) {
     case 'SETTINGS':
-      content = <Settings />
+      content = (
+        <>
+          <Settings />
+          <br />
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <FontAwesomeIcon icon={faInfoCircle} />
+            <p>
+              Settings can be changed later by right-clicking the extension
+              button and selection 'Options'.
+            </p>
+          </div>
+        </>
+      )
       break
     case 'PROGRESS':
       content = <QueueContent items={queue} />
@@ -25,7 +39,7 @@ const PopupContent = ({ history, queue, currentContent, download }) => {
     default:
       content = null
   }
-  return <div className={classes.popupContainer}>{content}</div>
+  return <div className={classes.popupContent}>{content}</div>
 }
 
 export default PopupContent

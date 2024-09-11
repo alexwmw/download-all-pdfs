@@ -58,3 +58,23 @@
   }
 
 }
+
+.dialogButton {
+  dialog {
+    position: absolute;
+    inset: 0;
+    height: 80%;
+    width: 86%;
+    z-index: 3;
+  }
+}
+
+body:has(dialog[open]) {
+  &:before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2;
+  }
+}

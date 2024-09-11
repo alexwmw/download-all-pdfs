@@ -1,30 +1,30 @@
 import { useEffect, useState } from 'react'
 
 const Settings = () => {
-  const [defaultAction, setDefaultAction] = useState('CHOOSE')
-  const [doClose, setDoClose] = useState(false)
+  const [settings, setSettings] = useState({})
+  const { doClose, defaultAction } = settings
   useEffect(() => {
     chrome.storage.local.get(['defaultAction', 'doClose']).then((result) => {
-      if (result.defaultAction) {
-        setDefaultAction(result.defaultAction)
-      }
-      if (result.doClose ?? true) {
-        setDoClose(result.doClose ?? true)
-      }
-    })
-  }, [setDefaultAction, setDoClose])
-
-  const onOptionChange = (e) => {
-    chrome.storage.local
-      .set({ defaultAction: e.target.value })
-      .then((result) => {
-        setDefaultAction(e.target.value)
+      setSettings({
+        defaultAction: result.defaultAction ?? 'CHOOSE',
+        doClose: result.doClose ?? true,
       })
+    })
+  }, [setSettings])
+
+  const handleChangeDefaultAction = (e) => {
+    const action = e.target.value
+    chrome.storage.local.set({ defaultAction: action }).then(() => {
+      setSettings((settings) => ({
+        ...settings,
+        defaultAction: action,
+      }))
+    })
   }
 
   const handleCloseChange = () => {
-    chrome.storage.local.set({ doClose: !doClose }).then((result) => {
-      setDoClose(!doClose)
+    chrome.storage.local.set({ doClose: !doClose }).then(() => {
+      setSettings((settings) => ({ ...settings, doClose: !doClose }))
     })
   }
 
@@ -37,7 +37,7 @@ const Settings = () => {
           id={value}
           value={value}
           checked={checked}
-          onChange={onOptionChange}
+          onChange={handleChangeDefaultAction}
         />
         <label htmlFor={value}> {label}</label>
         <br />
@@ -49,13 +49,11 @@ const Settings = () => {
     <form>
       <fieldset>
         <legend>
-          <h4>
-            Set the default action for the extension button when PDFs are found
-          </h4>
+          <h4>Default action for the extension button</h4>
         </legend>
         <ActionInput
           value="CHOOSE"
-          label="Show the extension popup"
+          label="Choose what to do each time"
           checked={defaultAction === 'CHOOSE'}
         />
         <ActionInput
@@ -71,6 +69,9 @@ const Settings = () => {
       </fieldset>
 
       <fieldset>
+        <legend>
+          <h4>Options</h4>
+        </legend>
         <input
           onChange={handleCloseChange}
           id="CLOSE"

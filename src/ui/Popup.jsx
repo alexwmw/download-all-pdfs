@@ -6,6 +6,8 @@ import { useState } from 'react'
 import useWhatToDownload from '../hooks/useWhatToDownload'
 import useWhatToDisplay from '../hooks/useWhatToDisplay'
 import useInitDownload from '../hooks/useInitDownload'
+import { TertiaryButton } from './Buttons'
+import classes from './Popup.module.less'
 
 const Popup = () => {
   const [showSettings, setShowSettings] = useState(false)
@@ -23,9 +25,16 @@ const Popup = () => {
     initiated,
   })
 
+  const settingButton = (
+    <TertiaryButton
+      onClick={() => setShowSettings(!showSettings)}
+      title={showSettings ? 'Close settings' : 'Change settings'}
+    />
+  )
+
   return (
-    <>
-      <PopupTitleBar title={'Download All PDFs'} />
+    <div className={classes.popup}>
+      <PopupTitleBar title={'Download All PDFs'} buttons={settingButton} />
       <PopupContent
         currentContent={WHAT_TO_DISPLAY}
         queue={queue}
@@ -33,7 +42,7 @@ const Popup = () => {
         initiated={initiated}
         download={download}
       />
-    </>
+    </div>
   )
 }
 

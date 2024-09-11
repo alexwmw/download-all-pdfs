@@ -1,6 +1,5 @@
 import classes from './PopupTitleBar.module.less'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { TertiaryButton } from './Buttons'
 
 const PopupIconButton = ({ title, onClick, icon }) => {
   return (
@@ -15,13 +14,11 @@ const PopupIconButton = ({ title, onClick, icon }) => {
   )
 }
 
-const PopupTitleBar = ({ title }) => {
+const PopupTitleBar = ({ title, buttons }) => {
   return (
     <h1 className={classes.popupTitleBar}>
       {title}
-      <div>
-        <TertiaryButton title="Change default action" />
-      </div>
+      <div>{buttons}</div>
     </h1>
   )
 }
