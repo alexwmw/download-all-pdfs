@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { initDownload } from '../utility/utilities'
 
 const useWhatToDisplay = ({
   queue,
@@ -23,12 +22,12 @@ const useWhatToDisplay = ({
   if (initiated) {
     return 'SUCCESS'
   }
-  if (defaultAction === 'TABS' && tabPdfs.length > 0) {
-    return undefined
-  }
-  if (defaultAction === 'LINKS' && linkPdfs.length > 0) {
-    return undefined
-  }
+  // if (defaultAction === 'TABS' && tabPdfs.length > 0) {
+  //   return undefined
+  // }
+  // if (defaultAction === 'LINKS' && linkPdfs.length > 0) {
+  //   return undefined
+  // }
   // Else show the buttons
   return 'BUTTONS'
 }

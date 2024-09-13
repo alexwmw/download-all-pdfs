@@ -1,6 +1,5 @@
 import classes from './Buttons.module.less'
 import clsx from 'clsx'
-import React, { useState } from 'react'
 
 const Button = ({
   children,
@@ -20,8 +19,7 @@ const Button = ({
       className={clsx(
         classes.button,
         classes[type],
-        fullWidth && classes.fullWidth,
-        isDialogButton && classes.dialogButton
+        fullWidth && classes.fullWidth
       )}
       {...props}
     >
@@ -36,24 +34,35 @@ export const PrimaryButton = (props) => {
 export const TertiaryButton = (props) => {
   return <Button type={'tertiary'} {...props} />
 }
+export const SecondaryButton = (props) => {
+  return <Button type={'secondary'} {...props} />
+}
 
-export const DialogButton = ({ title, ...props }) => {
-  const [showDialog, setShowDialog] = useState(false)
+export const DialogButton = ({
+  title,
+  children,
+  open,
+  setOpen,
+  setClosed,
+  ...props
+}) => {
   return (
-    <TertiaryButton
-      title={title}
-      onClick={() => {
-        setShowDialog(!showDialog)
-      }}
-      isDialogButton={true}
-      {...props}
-    >
-      <dialog open={showDialog}>
-        <PrimaryButton
-          onClick={() => setShowDialog(!showDialog)}
-          title={'Close'}
-        />
+    <>
+      <TertiaryButton
+        title={title}
+        onClick={setOpen}
+        {...props}
+      ></TertiaryButton>
+      <dialog open={open}>
+        <div className={classes.dialog}>
+          <div>{children}</div>
+          <div>
+            <form method="dialog">
+              <PrimaryButton title={'Close'} onClick={setClosed} />
+            </form>
+          </div>
+        </div>
       </dialog>
-    </TertiaryButton>
+    </>
   )
 }

@@ -1,9 +1,14 @@
 import classes from './TitledList.module.less'
+import clsx from 'clsx'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-const TitledList = ({ title, items }) => {
+const TitledList = ({ title, items, icon }) => {
   return (
-    <div className={classes.titledList}>
-      <h3>{title}</h3>
+    <div className={clsx(classes.titledList)}>
+      <h3>
+        {icon && <FontAwesomeIcon icon={icon} />}
+        {title}
+      </h3>
       <ul>{items}</ul>
     </div>
   )

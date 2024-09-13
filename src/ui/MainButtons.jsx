@@ -1,18 +1,26 @@
 import classes from './MainButtons.module.less'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFile, faFileArrowDown } from '@fortawesome/free-solid-svg-icons'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import useGetCurrentPdfs from '../hooks/useGetCurrentPdfs'
 import { DialogButton, PrimaryButton } from './Buttons'
 
-const MainButtonListItem = ({ title, action, disabled }) => {
+const MainButtonListItem = ({ title, action, disabled, helpContent }) => {
+  const [open, setOpen] = useState(false)
   return (
     <li key={title} className={classes.mainButtonListItem}>
       <PrimaryButton fullWidth={true} disabled={disabled} onClick={action}>
         <FontAwesomeIcon icon={disabled ? faFile : faFileArrowDown} />
         {title}
       </PrimaryButton>
-      <DialogButton title="What does this mean?" />
+      <DialogButton
+        open={open}
+        setOpen={() => setOpen(true)}
+        setClosed={() => setOpen(false)}
+        title="What does this mean?"
+      >
+        {helpContent}
+      </DialogButton>
     </li>
   )
 }
@@ -27,6 +35,7 @@ const MainButtons = ({ download }) => {
       : 'No PDF tabs found',
     disabled: tabPdfs?.length === 0 ?? true,
     action: () => setDownloadItem(tabPdfs),
+    helpContent: <p>Content</p>,
   }
   const linkItem = {
     title: linkPdfs?.length
@@ -34,6 +43,7 @@ const MainButtons = ({ download }) => {
       : 'No PDF links found',
     disabled: linkPdfs?.length === 0 ?? true,
     action: () => setDownloadItem(linkPdfs),
+    helpContent: <p>Content</p>,
   }
 
   download(downloadItem)
