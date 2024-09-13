@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
 import { PrimaryButton, TertiaryButton } from './Buttons'
 import classes from './Settings.module.less'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons'
 
 const Settings = ({ setClose }) => {
+  const [hasChanges, setHasChanges] = useState(false)
   const [settings, setSettings] = useState({
     defaultAction: 'CHOOSE',
     doClose: true,
@@ -21,6 +24,7 @@ const Settings = ({ setClose }) => {
 
   // Handle changes to the defaultAction
   const handleChangeDefaultAction = (e) => {
+    setHasChanges(true)
     const action = e.target.value
     setSettings((prevSettings) => ({
       ...prevSettings,
@@ -30,6 +34,7 @@ const Settings = ({ setClose }) => {
 
   // Handle changes to the doClose checkbox
   const handleCloseChange = () => {
+    setHasChanges(true)
     setSettings((prevSettings) => ({
       ...prevSettings,
       doClose: !prevSettings.doClose,
@@ -88,7 +93,10 @@ const Settings = ({ setClose }) => {
               chrome.tabs.create({ url: 'chrome://settings/downloads' })
             }
           >
-            Edit download settings
+            <div className={classes.flexRow}>
+              <FontAwesomeIcon icon={faExternalLinkAlt} />
+              <span>Edit download settings</span>
+            </div>
           </TertiaryButton>
         </p>
       </fieldset>
@@ -138,8 +146,10 @@ const Settings = ({ setClose }) => {
           marginTop: '15px',
         }}
       >
-        <PrimaryButton role="submit" title="Save" />
-        {setClose && <PrimaryButton title="Cancel" onClick={setClose} />}
+        <PrimaryButton disabled={!hasChanges} role="submit" title="Save" />
+        {setClose && (
+          <PrimaryButton role={'button'} title="Back" onClick={setClose} />
+        )}
       </div>
     </form>
   )

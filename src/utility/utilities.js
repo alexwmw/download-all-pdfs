@@ -5,9 +5,9 @@ export async function getCurrentPdfTabs() {
   return await chrome.tabs.query(queryOptions)
 }
 
-export async function initDownload(tabs) {
+export async function initDownload(items) {
   return await chrome.runtime.sendMessage({
     action: 'download',
-    tabs,
+    items,
   })
 }

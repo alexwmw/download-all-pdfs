@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { initDownload } from '../utility/utilities'
 
 const useWhatToDownload = ({ tabPdfs, linkPdfs }) => {
   const [defaultAction, setDefaultAction] = useState()

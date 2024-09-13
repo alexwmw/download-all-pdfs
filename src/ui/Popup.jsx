@@ -39,7 +39,7 @@ const Popup = () => {
   const settingButton = !showSettings && (
     <TertiaryButton
       onClick={() => setShowSettings(!showSettings)}
-      title={showSettings ? 'Close settings' : 'Change settings'}
+      title={'Change settings'}
     />
   )
 
