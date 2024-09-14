@@ -130,3 +130,6 @@ dist
 
 # Webstorm
 .idea/
+
+# Non-repo
+ignore/

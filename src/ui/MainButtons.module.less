@@ -1,10 +1,10 @@
 @import '../less/constants.less';
 
 .mainButtons {
-  padding: 0;
+  padding-inline: 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 20px;
 }
 
 .mainButtonListItem {
@@ -20,15 +20,24 @@
       top: 1px;
     }
 
+    &[disabled] {
+      pointer-events: all;
+      cursor: default;
+
+      &:hover {
+        background-color: @hover-disabled-color;
+      }
+    }
+
     &:hover {
       background-color: @hover-color;
+
 
       &:not([disabled]) {
         @keyframes download {
           from {
-            transform: translateY(-10px);
-            scale: 1.1;
-            opacity: 0.2;
+            transform: translateY(-3px);
+            scale: 1.05;
           }
           to {
             transform: translateY(0);
@@ -36,7 +45,6 @@
         }
 
         svg {
-
           animation: download 0.6s ease;
         }
       }

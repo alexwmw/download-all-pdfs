@@ -1,4 +1,4 @@
-import { getCurrentPdfTabs, initDownload } from './utility/utilities'
+import { getCurrentPdfTabs } from './utility/utilities'
 
 const download = async (item, setFinished) => {
   const { doClose, history, errors } = await chrome.storage.local.get([
@@ -47,27 +47,46 @@ const queueListener = (changes, area) => {
 
 const setBadgeText = async () => {
   const tabPdfs = await getCurrentPdfTabs()
-  const linkPdfs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  const linkPdfs = []
   const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
   let text = ''
+  let icon = {
+    16: '16.png',
+    48: '48.png',
+    128: '128.png',
+  }
   if (defaultAction === 'TABS' && (tabPdfs ?? []).length > 0) {
     text = (tabPdfs ?? []).length.toString()
   }
   if (defaultAction === 'LINKS' && (linkPdfs ?? []).length > 0) {
     text = (linkPdfs ?? []).length.toString()
   }
+  if (
+    defaultAction !== 'CHOOSE' &&
+    (tabPdfs ?? []).length === 0 &&
+    (linkPdfs ?? []).length === 0
+  ) {
+    icon = {
+      16: '16_faded.png',
+      48: '48_faded.png',
+      128: '128_faded.png',
+    }
+  }
+  await chrome.action.setIcon({ path: icon })
   await chrome.action.setBadgeText({ text })
+  await chrome.action.setBadgeTextColor({ color: '#ffffff' })
+  await chrome.action.setBadgeBackgroundColor({ color: '#393fd3' })
   return true
 }
 const setPopup = async () => {
   const tabPdfs = await getCurrentPdfTabs()
-  const linkPdfs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  const linkPdfs = []
   const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
   let popup = './popup.html'
-  if (defaultAction === 'TABS') {
+  if (defaultAction === 'TABS' && (tabPdfs ?? []).length > 0) {
     popup = ''
   }
-  if (defaultAction === 'LINKS') {
+  if (defaultAction === 'LINKS' && (linkPdfs ?? []).length > 0) {
     popup = ''
   }
   await chrome.action.setPopup({ popup })
@@ -78,11 +97,18 @@ const handleActionClick = async (tab) => {
   const tabPdfs = await getCurrentPdfTabs()
   const linkPdfs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
-  if (defaultAction === 'TABS') {
-    await initDownload(tabPdfs)
-  }
-  if (defaultAction === 'LINKS') {
+  const storage = await chrome.storage.session.get()
+  let queue
+  console.log('Action:', 'Checking for PDFS')
+  if (defaultAction === 'TABS' && tabPdfs.length) {
+    console.log('Initiating download with:', { tabPdfs })
+    queue = [...(storage.queue ?? []), ...tabPdfs]
+    await chrome.storage.session.set({ queue })
+  } else if (defaultAction === 'LINKS' && linkPdfs.length) {
+    console.log('Initiating download with:', { linkPdfs })
     // await initDownload(linkPdfs)
+  } else {
+    console.log('No items to download')
   }
   return true
 }

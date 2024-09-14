@@ -13,7 +13,7 @@
   }
 
   input {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
   }
 
   .flexRow {
@@ -21,5 +21,32 @@
     gap: 6px;
     align-items: center;
     margin-bottom: 6px;
+
+
   }
+
+  .buttonFlexRow {
+    .flexRow();
+    margin-top: 15px;
+    gap: 10px;
+    justify-content: end;
+  }
+}
+
+.actionInput {
+  border-radius: 6px;
+  padding: 2px 2px 2px 0;
+  margin-right: 24px;
+
+  border: transparent 1px solid;
+
+  &:has(input[checked]) {
+    //border-color: @medium-gray;
+    background-color: @light-gray;
+
+    label {
+      font-weight: 500;
+    }
+  }
+
 }

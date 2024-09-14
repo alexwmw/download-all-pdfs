@@ -1,6 +1,6 @@
 import classes from './MainButtons.module.less'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faFile, faFileArrowDown } from '@fortawesome/free-solid-svg-icons'
+import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons'
 import { useState } from 'react'
 import useGetCurrentPdfs from '../hooks/useGetCurrentPdfs'
 import { DialogButton, PrimaryButton } from './Buttons'
@@ -10,7 +10,7 @@ const MainButtonListItem = ({ title, action, disabled, helpContent }) => {
   return (
     <li key={title} className={classes.mainButtonListItem}>
       <PrimaryButton fullWidth={true} disabled={disabled} onClick={action}>
-        <FontAwesomeIcon icon={disabled ? faFile : faFileArrowDown} />
+        <FontAwesomeIcon icon={faFileArrowDown} />
         {title}
       </PrimaryButton>
       <DialogButton

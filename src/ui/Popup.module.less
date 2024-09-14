@@ -17,49 +17,59 @@ body {
   width: 365px;
   min-height: 100px;
 
+}
 
+.popup, .options {
   h1, h2, h3, h4 {
     font-family: @heading;
     text-wrap: pretty;
   }
 
+  h5, p, label {
+    font-family: @body;
+    text-wrap: pretty;
+  }
+
+  strong {
+    font-weight: 600;
+  }
+
+  h5 {
+    font-size: 11px;
+  }
 
   button {
     font-family: @button;
     font-weight: normal;
   }
 
-  .optionsPage {
-
-    p {
-      max-width: 260px;
-      line-height: 18px;
-    }
-
-    h4 {
-      margin-bottom: 6px;
-    }
-
-    form {
-      width: 100%;
-    }
-
-    button {
-      margin-left: auto;
-    }
-
-    label {
-      font-family: @body;
-    }
-
-    input {
-      margin: 8px 8px 0 0;
-      transform: translateY(1px);
-
-    }
-  }
-
-
 }
 
+html:has(.options) {
+  width: 100%;
+}
+
+body:has(.options) {
+  width: 100%;
+}
+
+#root:has(.options) {
+
+  width: 100%;
+}
+
+.options {
+  min-width: 300px;
+
+  h1 {
+    width: 100%;
+  }
+
+  form {
+    max-width: 680px;
+    margin: auto;
+    padding-inline: 20px
+  }
+
+}
 

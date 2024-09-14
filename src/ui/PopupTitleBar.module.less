@@ -15,44 +15,5 @@
 
 .extImage {
   filter: drop-shadow(0 0 2px @gray);
-}
-
-.popupIconButton {
-  background-color: transparent;
-  border: none;
-  font-size: inherit;
-  cursor: pointer;
-
-  &:hover svg {
-    color: @hover-color;
-  }
-
-  &:active svg {
-    color: @active-color;
-  }
-
-  svg {
-    color: @text-color;
-    transition: color 0.3s ease;
-  }
-
-  &.deleteHistory {
-    margin-top: 16px;
-    margin-right: auto;
-    margin-left: 0;
-    background: @light-gray;
-    display: flex;
-    gap: 10px;
-    padding: 6px;
-
-    &[disabled] {
-      color: @disabled-color;
-
-      svg {
-        color: @disabled-color;
-      }
-
-      pointer-events: none;
-    }
-  }
+  transform: translateY(-2px);
 }

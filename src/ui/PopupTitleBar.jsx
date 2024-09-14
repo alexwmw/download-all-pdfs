@@ -1,24 +1,10 @@
 import classes from './PopupTitleBar.module.less'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
-const PopupIconButton = ({ title, onClick, icon }) => {
-  return (
-    <button
-      title={title}
-      onClick={onClick}
-      tabIndex={1}
-      className={classes.popupIconButton}
-    >
-      <FontAwesomeIcon icon={icon} />
-    </button>
-  )
-}
 
 const ExtImage = ({ ...props }) => {
   return <img src={'./48.png'} alt={'DownloadAllPdfs logo'} {...props} />
 }
 
-const PopupTitleBar = ({ title, buttons }) => {
+const PopupTitleBar = ({ title = 'Download All PDFs', buttons }) => {
   return (
     <h1 className={classes.popupTitleBar}>
       <div

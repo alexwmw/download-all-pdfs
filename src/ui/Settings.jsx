@@ -3,8 +3,9 @@ import { PrimaryButton, TertiaryButton } from './Buttons'
 import classes from './Settings.module.less'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons'
+import clsx from 'clsx'
 
-const Settings = ({ setClose }) => {
+const Settings = ({ setClose, title }) => {
   const [hasChanges, setHasChanges] = useState(false)
   const [settings, setSettings] = useState({
     defaultAction: 'CHOOSE',
@@ -52,14 +53,18 @@ const Settings = ({ setClose }) => {
       })
       .then(() => {
         console.log('Settings saved to Chrome storage!')
-        if (setClose) setClose()
-        else window.close()
+        if (settings.defaultAction === 'CHOOSE') {
+          setClose()
+        } else {
+          window.close()
+        }
       })
   }
 
   const ActionInput = ({ value, checked, label }) => (
-    <div className={classes.flexRow}>
+    <div className={clsx(classes.flexRow, classes.actionInput)}>
       <input
+        tabIndex={1}
         type="radio"
         name="defaultAction"
         id={value}
@@ -74,6 +79,7 @@ const Settings = ({ setClose }) => {
 
   return (
     <form className={classes.settings} onSubmit={handleSubmit}>
+      {title && <h2>{title}</h2>}
       <fieldset>
         <legend>
           <h4>Info</h4>
@@ -132,20 +138,14 @@ const Settings = ({ setClose }) => {
             id="CLOSE"
             checked={doClose}
             type="checkbox"
+            tabIndex={1}
           />
-          <label htmlFor="CLOSE">
+          <label htmlFor="CLOSE" style={{ fontWeight: 500 }}>
             Close PDF tabs after they have been downloaded
           </label>
         </div>
       </fieldset>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'end',
-          gap: '10px',
-          marginTop: '15px',
-        }}
-      >
+      <div className={classes.buttonFlexRow}>
         <PrimaryButton disabled={!hasChanges} role="submit" title="Save" />
         {setClose && (
           <PrimaryButton role={'button'} title="Back" onClick={setClose} />
