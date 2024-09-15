@@ -51,11 +51,7 @@ const queueListener = (changes, area) => {
 
 const setBadgeText = async (tabId) => {
   const tabPdfs = await getCurrentPdfTabs()
-  let linkPdfs = []
-  if (tabId) {
-    linkPdfs = await getCurrentActiveTabPdfLinks(tabId)
-  }
-
+  const linkPdfs = await getCurrentActiveTabPdfLinks(tabId)
   const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
   let text = ''
   let icon = {
@@ -86,20 +82,27 @@ const setBadgeText = async (tabId) => {
   await chrome.action.setBadgeBackgroundColor({ color: '#393fd3' })
   return true
 }
-const setPopup = async () => {
+
+const setPopup = async (defaultAction) => {
   const tabPdfs = await getCurrentPdfTabs()
   const activeTab = await getActiveTab()
   const linkPdfs = await getCurrentActiveTabPdfLinks(activeTab.id)
-  const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
+
+  const hasItems = {
+    TABS: tabPdfs.length > 0,
+    LINKS: linkPdfs.length > 0,
+  }
+
   let popup = './popup.html'
-  if (defaultAction === 'TABS' && tabPdfs.length > 0) {
+  if (hasItems[defaultAction]) {
     popup = ''
   }
-  if (defaultAction === 'LINKS' && linkPdfs.length > 0) {
-    popup = ''
-  }
-  await chrome.action.setPopup({ popup })
-  return true
+  console.log('Set popup', {
+    popupSet: Boolean(popup),
+    defaultAction,
+    hasItems: hasItems[defaultAction],
+  })
+  chrome.action.setPopup({ popup })
 }
 
 const handleActionClick = async (tab) => {
@@ -113,41 +116,49 @@ const handleActionClick = async (tab) => {
   if (defaultAction === 'TABS' && tabPdfs.length) {
     queue = [...(storage.queue ?? []), ...tabPdfs]
     await chrome.storage.session.set({ queue })
-  } else if (defaultAction === 'LINKS' && linkPdfs.length) {
+  }
+  if (defaultAction === 'LINKS' && linkPdfs.length) {
     queue = [...(storage.queue ?? []), ...linkPdfs]
     await chrome.storage.session.set({ queue })
-  } else {
   }
   return true
 }
 
 chrome.runtime.onMessage.addListener(addItemsToQueue)
-chrome.tabs.onUpdated.addListener((tabId, info, tab) => {
-  if (info.status === 'complete') setBadgeText(tabId)
+chrome.storage.onChanged.addListener(queueListener)
+chrome.action.onClicked.addListener(handleActionClick)
+
+// Change badge and popup
+chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
+  if (info.status === 'complete') await setBadgeText(tabId)
 })
+
 chrome.tabs.onActivated.addListener((activeInfo) =>
   setBadgeText(activeInfo.tabId)
 )
-chrome.tabs.onCreated.addListener((tab) => setBadgeText(tab.id))
+chrome.tabs.onCreated.addListener((tab) => {
+  setBadgeText(tab.id)
+})
 chrome.tabs.onRemoved.addListener((tabId) => {
   setBadgeText(tabId)
 })
+chrome.storage.onChanged.addListener(async (changes, area) => {
+  if (area !== 'local' || !('defaultAction' in changes)) return
+  const { id } = await getActiveTab()
+  if (id) setBadgeText(id)
+  setPopup(changes.defaultAction.newValue)
+})
+
+// Install and startup
 chrome.runtime.onStartup.addListener(async () => {
-  await setBadgeText()
-  await setPopup()
-  return true
+  const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
+  const { id } = await getActiveTab()
+  if (id) setBadgeText(id)
+  setPopup(defaultAction)
 })
 chrome.runtime.onInstalled.addListener(async () => {
-  await setBadgeText()
-  await setPopup()
-  return true
+  const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
+  const { id } = await getActiveTab()
+  if (id) setBadgeText(id)
+  setPopup(defaultAction)
 })
-chrome.storage.onChanged.addListener(queueListener)
-chrome.storage.onChanged.addListener(async (changes, area) => {
-  if (area === 'local' && 'defaultAction' in changes) {
-    await setBadgeText()
-    await setPopup()
-  }
-  return true
-})
-chrome.action.onClicked.addListener(handleActionClick)
