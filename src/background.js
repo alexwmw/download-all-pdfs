@@ -6,15 +6,6 @@ import {
 
 const pdfTabIds = []
 
-function getHeaderFromHeaders(headers, headerName) {
-  for (let i = 0; i < headers.length; ++i) {
-    const header = headers[i]
-    if (header.name.toLowerCase() === headerName) {
-      return header
-    }
-  }
-}
-
 const getCurrentPdfTabs = async () => {
   const queryOptions = {
     url: ['http://*/*', 'https://*/*'],
@@ -26,7 +17,7 @@ const getCurrentPdfTabs = async () => {
     pdfTabsByUrl: tabs.filter((tab) => isPdfUrl(tab.url)),
   })
   for (const tab of tabs) {
-    if ((await isPdfUrl(tab.url)) || pdfTabIds.includes(tab.id)) {
+    if (isPdfUrl(tab.url) || pdfTabIds.includes(tab.id)) {
       pdfTabs.push(tab)
     }
   }
@@ -38,29 +29,50 @@ const removeFromPdfTabIds = (tabId) => {
   if (index >= 0) pdfTabIds.splice(index, 1)
 }
 
-chrome.webRequest.onHeadersReceived.addListener(
-  (details) => {
-    if (details.tabId !== -1) {
-      removeFromPdfTabIds(details.tabId)
-      const header = getHeaderFromHeaders(
-        details.responseHeaders,
-        'content-type'
-      )
-      if (header && header.value.split(';', 1)[0].endsWith('/pdf')) {
-        pdfTabIds.push(details.tabId)
+// Function to check MIME type in the tab
+const updatePdfListByMimeType = (tabId) => {
+  chrome.scripting.executeScript(
+    {
+      target: { tabId: tabId },
+      func: () => document.contentType, // Get the MIME type from the contentType property
+    },
+    (results) => {
+      const mimeType = results?.[0]?.result
+      if (!mimeType) return
+      console.log(`Tab ${tabId} has MIME type: ${mimeType}`)
+      removeFromPdfTabIds(tabId)
+      if (mimeType === 'application/pdf') {
+        pdfTabIds.push(tabId)
       }
-      console.log('Handle web request headers', {
-        tabId: details.tabId,
-        tabToMimeType: header?.value?.split(';', 1)[0] ?? false,
-      })
     }
-  },
-  {
-    urls: ['*://*/*'],
-    types: ['main_frame'],
-  },
-  ['responseHeaders']
-)
+  )
+}
+
+// Run the script when a new tab is created
+chrome.tabs.onCreated.addListener((tab) => {
+  updatePdfListByMimeType(tab.id)
+})
+
+// Run the script when a tab is updated (like URL change)
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.status === 'complete') {
+    // Wait until the page fully loads
+    updatePdfListByMimeType(tabId)
+  }
+})
+chrome.tabs.onRemoved.addListener((tabId) => {
+  removeFromPdfTabIds(tabId)
+})
+chrome.runtime.onInstalled.addListener(async (details) => {
+  const queryOptions = {
+    url: ['http://*/*', 'https://*/*'],
+  }
+  const tabs = await chrome.tabs.query(queryOptions)
+  for (const tab of tabs) {
+    const tabId = tab.id
+    updatePdfListByMimeType(tabId)
+  }
+})
 
 const handleGetIsPdfTab = (request, sender, sendResponse) => {
   console.log('Handle get is pdf tab', {
@@ -219,7 +231,6 @@ chrome.tabs.onCreated.addListener((tab) => {
 })
 chrome.tabs.onRemoved.addListener((tabId) => {
   setBadgeText(tabId)
-  removeFromPdfTabIds(tabId)
 })
 chrome.storage.onChanged.addListener(async (changes, area) => {
   if (area !== 'local' || !('defaultAction' in changes)) return

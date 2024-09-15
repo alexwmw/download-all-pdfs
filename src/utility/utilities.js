@@ -1,4 +1,4 @@
-export const isPdfUrl = async (url) => {
+export const isPdfUrl = (url) => {
   const resource = url.split('/').pop().toLowerCase()
   return resource.endsWith('.pdf') || resource.includes('.pdf?')
 }
@@ -14,7 +14,7 @@ export async function getCurrentPdfTabs() {
       action: 'getIsPdfTab',
       tabId: tab.id,
     })
-    const isPdfByUrl = await isPdfUrl(tab.url)
+    const isPdfByUrl = isPdfUrl(tab.url)
     if (isPdfByType || isPdfByUrl) pdfTabs.push(tab)
     console.log('Get current pdf tabs', {
       tab,

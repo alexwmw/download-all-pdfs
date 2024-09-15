@@ -25,14 +25,14 @@
     "128": "128.png"
   },
   "permissions": [
-    "storage",
     "tabs",
-    "activeTab",
     "downloads",
-    "webRequest"
+    "scripting",
+    "storage"
   ],
   "host_permissions": [
-    "<all_urls>"
+    "http://*/*",
+    "https://*/*"
   ],
   "options_page": "options.html"
 }
