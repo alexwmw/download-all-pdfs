@@ -28,7 +28,11 @@
     "storage",
     "tabs",
     "activeTab",
-    "downloads"
+    "downloads",
+    "webRequest"
+  ],
+  "host_permissions": [
+    "<all_urls>"
   ],
   "options_page": "options.html"
 }

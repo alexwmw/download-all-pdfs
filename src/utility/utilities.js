@@ -1,37 +1,6 @@
-const checkPdfContentType = async (url) => {
-  return false
-  // todo: implement
-  // try {
-  //   // Make a request to check headers
-  //   const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' })
-  //   const contentType = response.headers.get('content-type')
-  //
-  //   // If the content-type is 'application/pdf', it's a PDF
-  //   if (contentType?.toLowerCase().includes('application/pdf')) {
-  //     return true
-  //   }
-  //
-  //   return false
-  // } catch (error) {
-  //   console.error('Failed to fetch content type:', error)
-  //   return false
-  // }
-}
-
 export const isPdfUrl = async (url) => {
   const resource = url.split('/').pop().toLowerCase()
-  const isPdfResource = resource.endsWith('.pdf') || resource.includes('.pdf?')
-  if (isPdfResource) {
-    return true
-  }
-  // If it's not immediately clear, we can try to fetch headers and check content-type
-  try {
-    const isPdfContent = await checkPdfContentType(url)
-    return isPdfContent
-  } catch (error) {
-    console.error('Error checking content type:', error)
-    return false
-  }
+  return resource.endsWith('.pdf') || resource.includes('.pdf?')
 }
 
 export async function getCurrentPdfTabs() {
@@ -41,8 +10,17 @@ export async function getCurrentPdfTabs() {
   const httpTabs = (await chrome.tabs.query(queryOptions)) ?? []
   const pdfTabs = []
   for (const tab of httpTabs) {
-    const isPdf = await isPdfUrl(tab.url)
-    if (isPdf) pdfTabs.push(tab)
+    const isPdfByType = await chrome.runtime.sendMessage({
+      action: 'getIsPdfTab',
+      tabId: tab.id,
+    })
+    const isPdfByUrl = await isPdfUrl(tab.url)
+    if (isPdfByType || isPdfByUrl) pdfTabs.push(tab)
+    console.log('Get current pdf tabs', {
+      tab,
+      isPdfByType,
+      isPdfByUrl,
+    })
   }
   return pdfTabs
 }

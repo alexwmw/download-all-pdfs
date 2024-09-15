@@ -1,8 +1,69 @@
 import {
   getActiveTab,
   getCurrentActiveTabPdfLinks,
-  getCurrentPdfTabs,
+  isPdfUrl,
 } from './utility/utilities'
+
+const pdfTabIds = []
+
+function getHeaderFromHeaders(headers, headerName) {
+  for (let i = 0; i < headers.length; ++i) {
+    const header = headers[i]
+    if (header.name.toLowerCase() === headerName) {
+      return header
+    }
+  }
+}
+
+const getCurrentPdfTabs = async () => {
+  const queryOptions = {
+    url: ['http://*/*', 'https://*/*'],
+  }
+  const tabs = await chrome.tabs.query(queryOptions)
+  return tabs.filter((tab) => pdfTabIds.includes(tab.id) || isPdfUrl(tab.url))
+}
+
+const removeFromPdfTabIds = (tabId) => {
+  const index = pdfTabIds.indexOf(tabId)
+  if (index >= 0) pdfTabIds.splice(index, 1)
+}
+
+chrome.webRequest.onHeadersReceived.addListener(
+  (details) => {
+    if (details.tabId !== -1) {
+      removeFromPdfTabIds(details.tabId)
+      const header = getHeaderFromHeaders(
+        details.responseHeaders,
+        'content-type'
+      )
+      if (header && header.value.split(';', 1)[0].endsWith('/pdf')) {
+        pdfTabIds.push(details.tabId)
+      }
+      console.log('Handle web request headers', {
+        tabId: details.tabId,
+        tabToMimeType: header?.value?.split(';', 1)[0] ?? false,
+      })
+    }
+  },
+  {
+    urls: ['*://*/*'],
+    types: ['main_frame'],
+  },
+  ['responseHeaders']
+)
+
+const handleGetIsPdfTab = (request, sender, sendResponse) => {
+  console.log('Handle get is pdf tab', {
+    ...request,
+    isTabPdf: pdfTabIds.includes(request.tabId),
+  })
+  if (request.action === 'getIsPdfTab') {
+    sendResponse(pdfTabIds.includes(request.tabId))
+  }
+  sendResponse(false)
+  return true
+}
+chrome.runtime.onMessage.addListener(handleGetIsPdfTab)
 
 const download = async (item, setFinished) => {
   const { doClose, history, errors } = await chrome.storage.local.get([
@@ -141,6 +202,7 @@ chrome.tabs.onCreated.addListener((tab) => {
 })
 chrome.tabs.onRemoved.addListener((tabId) => {
   setBadgeText(tabId)
+  removeFromPdfTabIds(tabId)
 })
 chrome.storage.onChanged.addListener(async (changes, area) => {
   if (area !== 'local' || !('defaultAction' in changes)) return
