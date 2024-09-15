@@ -41,12 +41,24 @@
   border: transparent 1px solid;
 
   &:has(input[checked]) {
-    //border-color: @medium-gray;
-    background-color: @light-gray;
 
     label {
       font-weight: 500;
     }
   }
 
+}
+
+.tip {
+  border-color: @medium-gray;
+  background-color: @light-gray;
+
+  p {
+    margin-top: 0;
+  }
+
+  p:last-of-type {
+
+    margin-bottom: 0;
+  }
 }

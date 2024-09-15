@@ -19,8 +19,18 @@ const getCurrentPdfTabs = async () => {
   const queryOptions = {
     url: ['http://*/*', 'https://*/*'],
   }
+  const pdfTabs = []
   const tabs = await chrome.tabs.query(queryOptions)
-  return tabs.filter((tab) => pdfTabIds.includes(tab.id) || isPdfUrl(tab.url))
+  console.log('Get current pdf tabs', {
+    pdfTabsById: tabs.filter((tab) => pdfTabIds.includes(tab.id)),
+    pdfTabsByUrl: tabs.filter((tab) => isPdfUrl(tab.url)),
+  })
+  for (const tab of tabs) {
+    if ((await isPdfUrl(tab.url)) || pdfTabIds.includes(tab.id)) {
+      pdfTabs.push(tab)
+    }
+  }
+  return pdfTabs
 }
 
 const removeFromPdfTabIds = (tabId) => {
@@ -71,21 +81,28 @@ const download = async (item, setFinished) => {
     'history',
     'errors',
   ])
-  chrome.downloads.download({ url: item.url }, (downloadId) => {
-    if (downloadId === undefined) {
-      console.error('Error downloading:', item.url)
-      chrome.storage.local.set({ errors: [item, ...(errors ?? [])] })
-      setFinished()
-      return
-    }
-    if ((doClose ?? true) && item.hasOwnProperty('id')) {
-      setTimeout(() => chrome.tabs.remove(item.id), 1000)
-    }
-    const h = [item, ...(history ?? []).slice(0, 99)]
-    chrome.storage.local.set({ history: h })
+  chrome.downloads.download(
+    {
+      url: item.url,
+      saveAs: false,
+      filename: `DownloadAllPdfs/${item.title}.pdf`,
+    },
+    (downloadId) => {
+      if (downloadId === undefined) {
+        console.error('Error downloading:', item.url)
+        chrome.storage.local.set({ errors: [item, ...(errors ?? [])] })
+        setFinished()
+        return
+      }
+      if ((doClose ?? true) && item.hasOwnProperty('id')) {
+        setTimeout(() => chrome.tabs.remove(item.id), 1000)
+      }
+      const h = [item, ...(history ?? []).slice(0, 99)]
+      chrome.storage.local.set({ history: h })
 
-    setFinished()
-  })
+      setFinished()
+    }
+  )
 }
 
 const addItemsToQueue = async (request, sender, sendResponse) => {
@@ -190,7 +207,7 @@ chrome.storage.onChanged.addListener(queueListener)
 chrome.action.onClicked.addListener(handleActionClick)
 
 // Change badge and popup
-chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
+chrome.tabs.onUpdated.addListener(async (tabId, info) => {
   if (info.status === 'complete') await setBadgeText(tabId)
 })
 

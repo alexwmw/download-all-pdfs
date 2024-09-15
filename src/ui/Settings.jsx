@@ -79,14 +79,22 @@ const Settings = ({ setClose, title }) => {
   return (
     <form className={classes.settings} onSubmit={handleSubmit}>
       {title && <h2>{title}</h2>}
-      <fieldset>
+      {setClose && (
+        <fieldset className={classes.tip}>
+          <legend>
+            <h4>Tip</h4>
+          </legend>
+          <p>
+            These settings can also be reached by right-clicking the extension
+            button and selecting 'Options'.
+          </p>
+        </fieldset>
+      )}
+      <fieldset className={classes.tip}>
         <legend>
-          <h4>Info</h4>
+          <h4>Tip</h4>
         </legend>
-        <p>
-          Settings can be changed later by right-clicking the extension button
-          and selecting 'Options'.
-        </p>
+
         <p>
           It is recommended that you set the Chrome setting{' '}
           <strong>Ask where to save each file before downloading</strong> to
@@ -145,9 +153,9 @@ const Settings = ({ setClose, title }) => {
         </div>
       </fieldset>
       <div className={classes.buttonFlexRow}>
-        <PrimaryButton disabled={!hasChanges} role="submit" title="Save" />
+        <PrimaryButton disabled={!hasChanges} type="submit" title="Save" />
         {setClose && (
-          <PrimaryButton role={'button'} title="Back" onClick={setClose} />
+          <PrimaryButton type={'button'} title="Back" onClick={setClose} />
         )}
       </div>
     </form>

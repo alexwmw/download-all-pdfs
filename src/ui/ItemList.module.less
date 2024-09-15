@@ -1,0 +1,32 @@
+@import "../less/constants.less";
+
+.itemList {
+
+  padding: 6px;
+  padding-left: 12px;
+  background-color: @light-gray;
+  border-radius: 6px;
+  margin-top: 10px;
+  margin-left: 12px;
+
+  li {
+    display: flex;
+    list-style: none;
+    align-items: center;
+    gap: 20px;
+    //font-family: "Courier New", Courier, monospace;
+
+
+    a {
+      color: @body;
+      text-decoration-line: underline;
+      text-decoration-style: dotted;
+      font-size: 12px;
+      width: 300px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-block: 6px 3px;
+    }
+  }
+}

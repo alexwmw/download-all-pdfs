@@ -8,7 +8,7 @@ const Button = ({
   fullWidth,
   isDialogButton,
   title,
-  type,
+  buttonType,
   ...props
 }) => {
   return (
@@ -18,7 +18,7 @@ const Button = ({
       onClick={onClick}
       className={clsx(
         classes.button,
-        classes[type],
+        classes[buttonType],
         fullWidth && classes.fullWidth
       )}
       {...props}
@@ -29,13 +29,13 @@ const Button = ({
   )
 }
 export const PrimaryButton = (props) => {
-  return <Button type={'primary'} {...props} />
+  return <Button buttonType={'primary'} {...props} />
 }
 export const TertiaryButton = (props) => {
-  return <Button type={'tertiary'} {...props} />
+  return <Button buttonType={'tertiary'} {...props} />
 }
 export const SecondaryButton = (props) => {
-  return <Button type={'secondary'} {...props} />
+  return <Button buttonType={'secondary'} {...props} />
 }
 
 export const DialogButton = ({

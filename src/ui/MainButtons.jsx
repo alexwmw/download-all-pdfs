@@ -4,23 +4,24 @@ import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons'
 import { useState } from 'react'
 import useGetCurrentPdfs from '../hooks/useGetCurrentPdfs'
 import { DialogButton, PrimaryButton } from './Buttons'
+import ItemList from './ItemList'
+import HelpContent from './HelpContent'
 
-const MainButtonListItem = ({ title, action, disabled, helpContent }) => {
-  const [open, setOpen] = useState(false)
+const MainButtonListItem = ({ title, action, disabled, items }) => {
+  const [showItems, setShowItems] = useState(false)
   return (
     <li key={title} className={classes.mainButtonListItem}>
       <PrimaryButton fullWidth={true} disabled={disabled} onClick={action}>
         <FontAwesomeIcon icon={faFileArrowDown} />
         {title}
       </PrimaryButton>
-      <DialogButton
-        open={open}
-        setOpen={() => setOpen(true)}
-        setClosed={() => setOpen(false)}
-        title="What does this mean?"
-      >
-        {helpContent}
-      </DialogButton>
+      {items.length > 0 && (
+        <ItemList
+          items={items}
+          showItems={showItems}
+          setShowItems={setShowItems}
+        />
+      )}
     </li>
   )
 }
@@ -28,6 +29,7 @@ const MainButtonListItem = ({ title, action, disabled, helpContent }) => {
 const MainButtons = ({ download }) => {
   const { tabPdfs, linkPdfs } = useGetCurrentPdfs()
   const [downloadItem, setDownloadItem] = useState(undefined)
+  const [helpOpen, setHelpOpen] = useState(false)
 
   const tabsItem = {
     title: tabPdfs?.length
@@ -35,7 +37,7 @@ const MainButtons = ({ download }) => {
       : 'No PDF tabs found',
     disabled: tabPdfs?.length === 0 ?? true,
     action: () => setDownloadItem(tabPdfs),
-    helpContent: <p>Content</p>,
+    items: tabPdfs,
   }
   const linkItem = {
     title: linkPdfs?.length
@@ -43,13 +45,23 @@ const MainButtons = ({ download }) => {
       : 'No PDF links found',
     disabled: linkPdfs?.length === 0 ?? true,
     action: () => setDownloadItem(linkPdfs),
-    helpContent: <p>Content</p>,
+    items: linkPdfs,
   }
 
   download(downloadItem)
 
   return (
     <>
+      <div className={classes.helpButtonContainer}>
+        <DialogButton
+          open={helpOpen}
+          setOpen={() => setHelpOpen(true)}
+          setClosed={() => setHelpOpen(false)}
+          title="Help"
+        >
+          <HelpContent />
+        </DialogButton>
+      </div>
       <ul className={classes.mainButtons}>
         <MainButtonListItem {...tabsItem} />
         <MainButtonListItem {...linkItem} />
