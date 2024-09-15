@@ -1,4 +1,8 @@
-import { getCurrentPdfTabs } from './utility/utilities'
+import {
+  getActiveTab,
+  getCurrentActiveTabPdfLinks,
+  getCurrentPdfTabs,
+} from './utility/utilities'
 
 const download = async (item, setFinished) => {
   const { doClose, history, errors } = await chrome.storage.local.get([
@@ -45,9 +49,15 @@ const queueListener = (changes, area) => {
   return true
 }
 
-const setBadgeText = async () => {
+const setBadgeText = async (tabId, status) => {
   const tabPdfs = await getCurrentPdfTabs()
-  const linkPdfs = []
+  let linkPdfs = []
+  if (status && status === 'complete') {
+    linkPdfs = await getCurrentActiveTabPdfLinks(tabId)
+  }
+  if (status === undefined && tabId) {
+    linkPdfs = await getCurrentActiveTabPdfLinks(tabId)
+  }
   const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
   let text = ''
   let icon = {
@@ -55,10 +65,10 @@ const setBadgeText = async () => {
     48: '48.png',
     128: '128.png',
   }
-  if (defaultAction === 'TABS' && (tabPdfs ?? []).length > 0) {
+  if (defaultAction === 'TABS' && tabPdfs.length > 0) {
     text = (tabPdfs ?? []).length.toString()
   }
-  if (defaultAction === 'LINKS' && (linkPdfs ?? []).length > 0) {
+  if (defaultAction === 'LINKS' && linkPdfs.length > 0) {
     text = (linkPdfs ?? []).length.toString()
   }
   if (
@@ -80,13 +90,16 @@ const setBadgeText = async () => {
 }
 const setPopup = async () => {
   const tabPdfs = await getCurrentPdfTabs()
-  const linkPdfs = []
+  const activeTab = await getActiveTab()
+  const linkPdfs = activeTab
+    ? await getCurrentActiveTabPdfLinks(activeTab.id)
+    : []
   const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
   let popup = './popup.html'
-  if (defaultAction === 'TABS' && (tabPdfs ?? []).length > 0) {
+  if (defaultAction === 'TABS' && tabPdfs.length > 0) {
     popup = ''
   }
-  if (defaultAction === 'LINKS' && (linkPdfs ?? []).length > 0) {
+  if (defaultAction === 'LINKS' && linkPdfs.length > 0) {
     popup = ''
   }
   await chrome.action.setPopup({ popup })
@@ -95,18 +108,21 @@ const setPopup = async () => {
 
 const handleActionClick = async (tab) => {
   const tabPdfs = await getCurrentPdfTabs()
-  const linkPdfs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  const linkPdfs = [] // await getCurrentActiveTabPdfLinks(tab.id)
+
   const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
-  const storage = await chrome.storage.session.get()
+  const storage = await chrome.storage.session.get(['queue'])
   let queue
-  console.log('Action:', 'Checking for PDFS')
+
+  console.log('Action:', 'Checking for PDFs')
   if (defaultAction === 'TABS' && tabPdfs.length) {
     console.log('Initiating download with:', { tabPdfs })
     queue = [...(storage.queue ?? []), ...tabPdfs]
     await chrome.storage.session.set({ queue })
   } else if (defaultAction === 'LINKS' && linkPdfs.length) {
     console.log('Initiating download with:', { linkPdfs })
-    // await initDownload(linkPdfs)
+    queue = [...(storage.queue ?? []), ...linkPdfs]
+    await chrome.storage.session.set({ queue })
   } else {
     console.log('No items to download')
   }
@@ -114,9 +130,14 @@ const handleActionClick = async (tab) => {
 }
 
 chrome.runtime.onMessage.addListener(addItemsToQueue)
-chrome.tabs.onUpdated.addListener(setBadgeText)
-chrome.tabs.onCreated.addListener(setBadgeText)
-chrome.tabs.onRemoved.addListener(setBadgeText)
+chrome.tabs.onUpdated.addListener((tabId, info, tab) =>
+  setBadgeText(tab, info.status)
+)
+chrome.tabs.onActivated.addListener((activeInfo) =>
+  setBadgeText(activeInfo.tabId)
+)
+chrome.tabs.onCreated.addListener((tab) => setBadgeText(tab.id))
+chrome.tabs.onRemoved.addListener(() => setBadgeText())
 chrome.runtime.onStartup.addListener(async () => {
   await setBadgeText()
   await setPopup()

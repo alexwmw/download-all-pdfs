@@ -53,10 +53,10 @@ const Settings = ({ setClose, title }) => {
       })
       .then(() => {
         console.log('Settings saved to Chrome storage!')
-        if (settings.defaultAction === 'CHOOSE') {
+        if (setClose === undefined) window.close()
+        else if (setClose && settings.defaultAction !== 'CHOOSE') window.close()
+        else {
           setClose()
-        } else {
-          window.close()
         }
       })
   }

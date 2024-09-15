@@ -2,12 +2,23 @@
   "manifest_version": 3,
   "name": "Download All Pdfs",
   "version": "1.0.0",
-  "description": "A simple Chrome extension built with Node.js and Webpack.",
+  "description": "Your ultimate solution for swiftly downloading PDFs",
   "background": {
     "service_worker": "background.js"
   },
   "action": {
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_end"
+    }
+  ],
   "icons": {
     "16": "16.png",
     "48": "48.png",
@@ -17,8 +28,7 @@
     "storage",
     "tabs",
     "activeTab",
-    "downloads",
-    "notifications"
+    "downloads"
   ],
   "options_page": "options.html"
 }

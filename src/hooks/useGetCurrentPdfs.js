@@ -1,24 +1,60 @@
 import { useEffect, useState } from 'react'
-import { getCurrentPdfTabs } from '../utility/utilities'
+import {
+  getActiveTab,
+  getCurrentActiveTabPdfLinks,
+  getCurrentPdfTabs,
+} from '../utility/utilities'
 
 const useGetCurrentPdfs = () => {
   const [tabPdfs, setTabPdfs] = useState([])
   const [linkPdfs, setLinkPdfs] = useState([])
   const [queue, setQueue] = useState([])
+  const [activeTab, setActiveTab] = useState(null)
+  console.log(tabPdfs, linkPdfs)
+
   useEffect(() => {
-    getCurrentPdfTabs().then((tabs) => {
+    Promise.all([getCurrentPdfTabs(), getActiveTab()]).then(([tabs, tab]) => {
       setTabPdfs(tabs)
+      setActiveTab(tab)
     })
-    chrome.storage.onChanged.addListener((changes, area) => {
+  }, [])
+
+  useEffect(() => {
+    if (activeTab) {
+      console.log(`Getting current active tab pdf links for ${activeTab.url}`)
+      getCurrentActiveTabPdfLinks(activeTab.id).then((links) => {
+        console.log({ active: activeTab.title, links })
+        setLinkPdfs(links)
+      })
+    }
+
+    const handleStorageChange = (changes, area) => {
       if (area === 'session' && changes.queue?.newValue) {
         setQueue(changes.queue?.newValue)
       }
-    })
-    chrome.tabs.onRemoved.addListener((tabId) => {
-      const newPdfTabs = tabPdfs.filter((tab) => tab.id !== tabId)
-      setTabPdfs([...newPdfTabs])
-    })
-  }, [setTabPdfs, setQueue])
+    }
+
+    const handleTabRemoval = (tabId) => {
+      setTabPdfs((prevPdfs) => prevPdfs.filter((tab) => tab.id !== tabId))
+    }
+
+    const handlePdfLinks = (response) => {
+      if (request.action === 'getPdfLinks') {
+        getPdfLinks()
+      }
+    }
+
+    // Add storage and tab listeners
+    chrome.storage.onChanged.addListener(handleStorageChange)
+    chrome.tabs.onRemoved.addListener(handleTabRemoval)
+    chrome.runtime.onMessage.addListener(handlePdfLinks)
+
+    // Cleanup event listeners on unmount or effect rerun
+    return () => {
+      chrome.storage.onChanged.removeListener(handleStorageChange)
+      chrome.tabs.onRemoved.removeListener(handleTabRemoval)
+    }
+  }, [activeTab, tabPdfs])
 
   return { tabPdfs, linkPdfs, queue }
 }
