@@ -10,7 +10,6 @@ const useGetCurrentPdfs = () => {
   const [linkPdfs, setLinkPdfs] = useState([])
   const [queue, setQueue] = useState([])
   const [activeTab, setActiveTab] = useState(null)
-  console.log(tabPdfs, linkPdfs)
 
   useEffect(() => {
     Promise.all([getCurrentPdfTabs(), getActiveTab()]).then(([tabs, tab]) => {
@@ -21,9 +20,7 @@ const useGetCurrentPdfs = () => {
 
   useEffect(() => {
     if (activeTab) {
-      console.log(`Getting current active tab pdf links for ${activeTab.url}`)
       getCurrentActiveTabPdfLinks(activeTab.id).then((links) => {
-        console.log({ active: activeTab.title, links })
         setLinkPdfs(links)
       })
     }

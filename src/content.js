@@ -1,5 +1,4 @@
-// contentScript.js
-console.log('CONTENT SCRIPT IS RUNNING')
+// content.js
 const getPdfLinks = () => {
   const pdfLinks = []
   const anchors = document.querySelectorAll('a[href$=".pdf"]')
@@ -24,7 +23,6 @@ const getPdfLinks = () => {
 
 // Listen for a message from the background script to trigger the function
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log('CONTENT SCRIPT RECEIVED REQUEST', request)
   if (request.action === 'getPdfLinks') {
     sendResponse({ links: getPdfLinks() })
   }

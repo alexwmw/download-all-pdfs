@@ -49,15 +49,13 @@ const queueListener = (changes, area) => {
   return true
 }
 
-const setBadgeText = async (tabId, status) => {
+const setBadgeText = async (tabId) => {
   const tabPdfs = await getCurrentPdfTabs()
   let linkPdfs = []
-  if (status && status === 'complete') {
+  if (tabId) {
     linkPdfs = await getCurrentActiveTabPdfLinks(tabId)
   }
-  if (status === undefined && tabId) {
-    linkPdfs = await getCurrentActiveTabPdfLinks(tabId)
-  }
+
   const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
   let text = ''
   let icon = {
@@ -91,9 +89,7 @@ const setBadgeText = async (tabId, status) => {
 const setPopup = async () => {
   const tabPdfs = await getCurrentPdfTabs()
   const activeTab = await getActiveTab()
-  const linkPdfs = activeTab
-    ? await getCurrentActiveTabPdfLinks(activeTab.id)
-    : []
+  const linkPdfs = await getCurrentActiveTabPdfLinks(activeTab.id)
   const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
   let popup = './popup.html'
   if (defaultAction === 'TABS' && tabPdfs.length > 0) {
@@ -108,36 +104,34 @@ const setPopup = async () => {
 
 const handleActionClick = async (tab) => {
   const tabPdfs = await getCurrentPdfTabs()
-  const linkPdfs = [] // await getCurrentActiveTabPdfLinks(tab.id)
+  const linkPdfs = await getCurrentActiveTabPdfLinks(tab.id)
 
   const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
   const storage = await chrome.storage.session.get(['queue'])
   let queue
 
-  console.log('Action:', 'Checking for PDFs')
   if (defaultAction === 'TABS' && tabPdfs.length) {
-    console.log('Initiating download with:', { tabPdfs })
     queue = [...(storage.queue ?? []), ...tabPdfs]
     await chrome.storage.session.set({ queue })
   } else if (defaultAction === 'LINKS' && linkPdfs.length) {
-    console.log('Initiating download with:', { linkPdfs })
     queue = [...(storage.queue ?? []), ...linkPdfs]
     await chrome.storage.session.set({ queue })
   } else {
-    console.log('No items to download')
   }
   return true
 }
 
 chrome.runtime.onMessage.addListener(addItemsToQueue)
-chrome.tabs.onUpdated.addListener((tabId, info, tab) =>
-  setBadgeText(tab, info.status)
-)
+chrome.tabs.onUpdated.addListener((tabId, info, tab) => {
+  if (info.status === 'complete') setBadgeText(tabId)
+})
 chrome.tabs.onActivated.addListener((activeInfo) =>
   setBadgeText(activeInfo.tabId)
 )
 chrome.tabs.onCreated.addListener((tab) => setBadgeText(tab.id))
-chrome.tabs.onRemoved.addListener(() => setBadgeText())
+chrome.tabs.onRemoved.addListener((tabId) => {
+  setBadgeText(tabId)
+})
 chrome.runtime.onStartup.addListener(async () => {
   await setBadgeText()
   await setPopup()

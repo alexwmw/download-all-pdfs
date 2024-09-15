@@ -6,12 +6,10 @@ export async function getCurrentPdfTabs() {
 }
 
 export async function getCurrentActiveTabPdfLinks(tabId) {
-  console.log(`Getting current active tab pdf links for ${tabId}`)
   try {
     const response = await chrome.tabs.sendMessage(tabId, {
       action: 'getPdfLinks',
     })
-    console.log('response: ', response?.links)
     return response?.links ?? []
   } catch (e) {
     return []
