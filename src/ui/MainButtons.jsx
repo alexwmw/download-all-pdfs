@@ -3,9 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons'
 import { useState } from 'react'
 import useGetCurrentPdfs from '../hooks/useGetCurrentPdfs'
-import { DialogButton, PrimaryButton } from './Buttons'
+import { PrimaryButton } from './Buttons'
 import ItemList from './ItemList'
-import HelpContent from './HelpContent'
 
 const MainButtonListItem = ({
   title,
