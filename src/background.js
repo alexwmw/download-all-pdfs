@@ -206,11 +206,15 @@ const handleActionClick = async (tab) => {
 
   if (defaultAction === 'TABS' && tabPdfs.length) {
     queue = [...(storage.queue ?? []), ...tabPdfs]
-    await chrome.storage.session.set({ queue })
+    chrome.storage.session.set({ queue }).then(() => {
+      chrome.action.setBadgeBackgroundColor({ color: 'seagreen' })
+    })
   }
   if (defaultAction === 'LINKS' && linkPdfs.length) {
     queue = [...(storage.queue ?? []), ...linkPdfs]
-    await chrome.storage.session.set({ queue })
+    chrome.storage.session.set({ queue }).then(() => {
+      chrome.action.setBadgeBackgroundColor({ color: 'seagreen' })
+    })
   }
   return true
 }

@@ -24,7 +24,7 @@ const Popup = () => {
   const { initiated, download } = useInitDownload(downloadItem)
 
   const findQueueMax = (queueMax) => {
-    const [a, b] = [queue.length ?? 0, queueMax ?? 0]
+    const [a, b] = [queue?.length ?? 0, queueMax ?? 0]
     return a > b ? a : b
   }
   useEffect(() => setQueueMax(findQueueMax))
@@ -36,7 +36,7 @@ const Popup = () => {
   })
 
   useEffect(() => {
-    if (queue.length > originalQueue.length) setOriginQueue([...queue])
+    if (queue?.length > originalQueue.length) setOriginQueue([...queue])
     else {
       setOriginQueue((q) => {
         const newQ = [...q]
