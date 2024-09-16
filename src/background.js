@@ -37,9 +37,18 @@ const updatePdfListByMimeType = (tabId) => {
       func: () => document.contentType, // Get the MIME type from the contentType property
     },
     (results) => {
+      if (chrome.runtime.lastError) {
+        console.log(
+          'Update pdf list by mime type',
+          { tabId },
+          'Script execution failed: ',
+          chrome.runtime.lastError
+        )
+        return
+      }
       const mimeType = results?.[0]?.result
       if (!mimeType) return
-      console.log(`Tab ${tabId} has MIME type: ${mimeType}`)
+      console.log('Update pdf list by mime type', { tabId, mimeType })
       removeFromPdfTabIds(tabId)
       if (mimeType === 'application/pdf') {
         pdfTabIds.push(tabId)
@@ -57,7 +66,7 @@ chrome.tabs.onCreated.addListener((tab) => {
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete') {
     // Wait until the page fully loads
-    updatePdfListByMimeType(tabId)
+    if (tab.url.startsWith('http')) updatePdfListByMimeType(tabId)
   }
 })
 chrome.tabs.onRemoved.addListener((tabId) => {
@@ -70,7 +79,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   const tabs = await chrome.tabs.query(queryOptions)
   for (const tab of tabs) {
     const tabId = tab.id
-    updatePdfListByMimeType(tabId)
+    if (tab.url.startsWith('http')) updatePdfListByMimeType(tabId)
   }
 })
 
@@ -88,16 +97,13 @@ const handleGetIsPdfTab = (request, sender, sendResponse) => {
 chrome.runtime.onMessage.addListener(handleGetIsPdfTab)
 
 const download = async (item, setFinished) => {
-  const { doClose, history, errors } = await chrome.storage.local.get([
+  const { doClose, errors } = await chrome.storage.local.get([
     'doClose',
-    'history',
     'errors',
   ])
   chrome.downloads.download(
     {
       url: item.url,
-      saveAs: false,
-      filename: `DownloadAllPdfs/${item.title}.pdf`,
     },
     (downloadId) => {
       if (downloadId === undefined) {
@@ -109,8 +115,6 @@ const download = async (item, setFinished) => {
       if ((doClose ?? true) && item.hasOwnProperty('id')) {
         setTimeout(() => chrome.tabs.remove(item.id), 1000)
       }
-      const h = [item, ...(history ?? []).slice(0, 99)]
-      chrome.storage.local.set({ history: h })
 
       setFinished()
     }
@@ -155,11 +159,7 @@ const setBadgeText = async (tabId) => {
   if (defaultAction === 'LINKS' && linkPdfs.length > 0) {
     text = (linkPdfs ?? []).length.toString()
   }
-  if (
-    defaultAction !== 'CHOOSE' &&
-    (tabPdfs ?? []).length === 0 &&
-    (linkPdfs ?? []).length === 0
-  ) {
+  if ((tabPdfs ?? []).length === 0 && (linkPdfs ?? []).length === 0) {
     icon = {
       16: '16_faded.png',
       48: '48_faded.png',
@@ -178,19 +178,20 @@ const setPopup = async (defaultAction) => {
   const activeTab = await getActiveTab()
   const linkPdfs = await getCurrentActiveTabPdfLinks(activeTab.id)
 
-  const hasItems = {
-    TABS: tabPdfs.length > 0,
-    LINKS: linkPdfs.length > 0,
-  }
+  const hasItems =
+    {
+      TABS: tabPdfs.length > 0,
+      LINKS: linkPdfs.length > 0,
+    }[defaultAction] ?? false
 
   let popup = './popup.html'
-  if (hasItems[defaultAction]) {
+  if (hasItems) {
     popup = ''
   }
   console.log('Set popup', {
     popupSet: Boolean(popup),
     defaultAction,
-    hasItems: hasItems[defaultAction],
+    hasItems: hasItems,
   })
   chrome.action.setPopup({ popup })
 }
@@ -221,16 +222,23 @@ chrome.action.onClicked.addListener(handleActionClick)
 // Change badge and popup
 chrome.tabs.onUpdated.addListener(async (tabId, info) => {
   if (info.status === 'complete') await setBadgeText(tabId)
+  const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
+  setPopup(defaultAction)
 })
-
-chrome.tabs.onActivated.addListener((activeInfo) =>
+chrome.tabs.onActivated.addListener(async (activeInfo) => {
   setBadgeText(activeInfo.tabId)
-)
-chrome.tabs.onCreated.addListener((tab) => {
-  setBadgeText(tab.id)
+  const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
+  setPopup(defaultAction)
 })
-chrome.tabs.onRemoved.addListener((tabId) => {
+chrome.tabs.onCreated.addListener(async (tab) => {
+  setBadgeText(tab.id)
+  const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
+  setPopup(defaultAction)
+})
+chrome.tabs.onRemoved.addListener(async (tabId) => {
   setBadgeText(tabId)
+  const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
+  setPopup(defaultAction)
 })
 chrome.storage.onChanged.addListener(async (changes, area) => {
   if (area !== 'local' || !('defaultAction' in changes)) return
@@ -238,8 +246,6 @@ chrome.storage.onChanged.addListener(async (changes, area) => {
   if (id) setBadgeText(id)
   setPopup(changes.defaultAction.newValue)
 })
-
-// Install and startup
 chrome.runtime.onStartup.addListener(async () => {
   const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
   const { id } = await getActiveTab()

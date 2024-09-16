@@ -7,21 +7,46 @@ import { DialogButton, PrimaryButton } from './Buttons'
 import ItemList from './ItemList'
 import HelpContent from './HelpContent'
 
-const MainButtonListItem = ({ title, action, disabled, items }) => {
+const MainButtonListItem = ({
+  title,
+  action,
+  disabled,
+  items,
+  adviceTitle,
+  advice,
+}) => {
   const [showItems, setShowItems] = useState(false)
+  const [showAdvice, setShowAdvice] = useState(false)
   return (
     <li key={title} className={classes.mainButtonListItem}>
-      <PrimaryButton fullWidth={true} disabled={disabled} onClick={action}>
+      <PrimaryButton
+        fullWidth={true}
+        className={disabled && classes.disabled}
+        onClick={disabled ? () => setShowAdvice(true) : action}
+      >
         <FontAwesomeIcon icon={faFileArrowDown} />
         {title}
       </PrimaryButton>
-      {items.length > 0 && (
-        <ItemList
-          items={items}
-          showItems={showItems}
-          setShowItems={setShowItems}
-        />
-      )}
+      <ItemList
+        items={items}
+        showItems={showItems}
+        setShowItems={setShowItems}
+      />
+      <dialog open={showAdvice} onClose={() => setShowAdvice(false)}>
+        <div>
+          <div>
+            <h3>{adviceTitle}</h3>
+            {advice.split(/(?<=\. )/).map((line, index) => (
+              <p key={index}>{line}</p>
+            ))}
+          </div>
+          <div>
+            <form method="dialog">
+              <PrimaryButton title={'Close'} />
+            </form>
+          </div>
+        </div>
+      </dialog>
     </li>
   )
 }
@@ -29,44 +54,39 @@ const MainButtonListItem = ({ title, action, disabled, items }) => {
 const MainButtons = ({ download }) => {
   const { tabPdfs, linkPdfs } = useGetCurrentPdfs()
   const [downloadItem, setDownloadItem] = useState(undefined)
-  const [helpOpen, setHelpOpen] = useState(false)
 
   const tabsItem = {
     title: tabPdfs?.length
-      ? `Download ${tabPdfs?.length || 'all'} PDF${tabPdfs?.length === 1 ? '' : 's'} open in current tabs`
-      : 'No PDF tabs found',
+      ? `Download ${tabPdfs?.length} PDF${tabPdfs?.length === 1 ? '' : 's'} open in current tabs`
+      : 'Download PDFs open in current tabs',
+
     disabled: tabPdfs?.length === 0 ?? true,
     action: () => setDownloadItem(tabPdfs),
     items: tabPdfs,
+    adviceTitle: 'No PDFs found open in current tabs',
+    advice:
+      "The extension could not find any PDFs open in current tabs. PDF tabs are tabs that display the PDF viewer, and often have a URL ending in '.pdf'.",
   }
   const linkItem = {
     title: linkPdfs?.length
-      ? `Download ${linkPdfs?.length || 'all'} PDF link${linkPdfs?.length === 1 ? '' : 's'} found on page`
-      : 'No PDF links found',
+      ? `Download ${linkPdfs?.length} PDF link${linkPdfs?.length === 1 ? '' : 's'} found on page`
+      : 'Download PDFs links found on page',
+
     disabled: linkPdfs?.length === 0 ?? true,
     action: () => setDownloadItem(linkPdfs),
     items: linkPdfs,
+    adviceTitle: 'No PDFs links found in current page',
+    advice:
+      "The extension could not find any PDFs links in the current page. PDF links are hyperlinks within a web page that point to a PDF resource. They are identified by a URL that ends in '.pdf'.",
   }
 
   download(downloadItem)
 
   return (
-    <>
-      <div className={classes.helpButtonContainer}>
-        <DialogButton
-          open={helpOpen}
-          setOpen={() => setHelpOpen(true)}
-          setClosed={() => setHelpOpen(false)}
-          title="Help"
-        >
-          <HelpContent />
-        </DialogButton>
-      </div>
-      <ul className={classes.mainButtons}>
-        <MainButtonListItem {...tabsItem} />
-        <MainButtonListItem {...linkItem} />
-      </ul>
-    </>
+    <ul className={classes.mainButtons}>
+      <MainButtonListItem {...tabsItem} />
+      <MainButtonListItem {...linkItem} />
+    </ul>
   )
 }
 

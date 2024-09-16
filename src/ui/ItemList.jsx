@@ -9,10 +9,18 @@ import classes from './ItemList.module.less'
 
 const ItemList = ({ items, showItems, setShowItems }) => {
   const icon = showItems ? faCaretDown : faCaretRight
-  const title = showItems ? 'Hide PDF names' : 'Show PDF names'
+  const disabled = items.length === 0
+  const title = disabled
+    ? 'No PDFs found'
+    : showItems
+      ? 'Hide PDF names'
+      : 'Show PDF names'
   return (
     <>
-      <TertiaryButton onClick={() => setShowItems(!showItems)}>
+      <TertiaryButton
+        disabled={disabled}
+        onClick={() => setShowItems(!showItems)}
+      >
         <FontAwesomeIcon icon={icon} /> {title}
       </TertiaryButton>
       {showItems && (

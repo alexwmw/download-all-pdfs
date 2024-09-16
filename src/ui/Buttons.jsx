@@ -9,6 +9,7 @@ const Button = ({
   isDialogButton,
   title,
   buttonType,
+  className,
   ...props
 }) => {
   return (
@@ -19,7 +20,8 @@ const Button = ({
       className={clsx(
         classes.button,
         classes[buttonType],
-        fullWidth && classes.fullWidth
+        fullWidth && classes.fullWidth,
+        className
       )}
       {...props}
     >

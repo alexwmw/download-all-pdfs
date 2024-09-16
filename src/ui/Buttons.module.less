@@ -74,25 +74,35 @@
     color: @active-color;
   }
 
+  &[disabled] {
+    background-color: transparent;
+    color: @text-color;
+    text-decoration: none;
+  }
+
 }
 
 dialog {
   z-index: 100;
-  position: absolute;
-  inset: 0;
-  height: 80%;
   width: 86%;
   border: none;
   border-radius: 5px;
-
+  position: absolute;
+  top: 5%;
 
   .dialog {
     margin: 10px;
-    display: flex;
+    //display: flex;
     position: absolute;
     inset: 0;
     flex-direction: column;
     justify-content: space-between;
+
+
+  }
+
+  form {
+    margin-top: 20px;
   }
 }
 

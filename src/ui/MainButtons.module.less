@@ -20,12 +20,13 @@
       top: 1px;
     }
 
-    &[disabled] {
+    &.disabled {
       pointer-events: all;
-      cursor: default;
+      cursor: pointer;
+      background-color: @disabled-color;
 
       &:hover {
-        background-color: @hover-disabled-color;
+        background-color: @disabled-color;
       }
     }
 
@@ -33,7 +34,7 @@
       background-color: @hover-color;
 
 
-      &:not([disabled]) {
+      &:not(.disabled) {
         @keyframes download {
           from {
             transform: translateY(-3px);
@@ -50,6 +51,8 @@
       }
     }
   }
+
+
 }
 
 .helpButtonContainer {

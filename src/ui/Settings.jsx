@@ -79,25 +79,13 @@ const Settings = ({ setClose, title }) => {
   return (
     <form className={classes.settings} onSubmit={handleSubmit}>
       {title && <h2>{title}</h2>}
-      {setClose && (
-        <fieldset className={classes.tip}>
-          <legend>
-            <h4>Tip</h4>
-          </legend>
-          <p>
-            These settings can also be reached by right-clicking the extension
-            button and selecting 'Options'.
-          </p>
-        </fieldset>
-      )}
       <fieldset className={classes.tip}>
         <legend>
-          <h4>Tip</h4>
+          <h4>Tips</h4>
         </legend>
-
         <p>
-          It is recommended that you set the Chrome setting{' '}
-          <strong>Ask where to save each file before downloading</strong> to
+          It is recommended that you set{' '}
+          <strong>'Ask where to save each file before downloading'</strong> to
           false when using this extension.
         </p>
         <p>
@@ -117,22 +105,25 @@ const Settings = ({ setClose, title }) => {
         <legend>
           <h4>Default action</h4>
         </legend>
-        <h5>What should happen when you click the extension icon?</h5>
-        <ActionInput
-          value="TABS"
-          checked={defaultAction === 'TABS'}
-          label="Download all PDFs open in current tabs"
-        />
-        <ActionInput
-          value="LINKS"
-          checked={defaultAction === 'LINKS'}
-          label="Download all PDFs links in the current page"
-        />
+        <h5>What should happen when you click the extension icon?</h5>{' '}
         <ActionInput
           value="CHOOSE"
           checked={defaultAction === 'CHOOSE'}
           label="Choose what to do each time"
         />
+        <ActionInput
+          value="TABS"
+          checked={defaultAction === 'TABS'}
+          label="Download all PDFs open in current tabs*"
+        />
+        <ActionInput
+          value="LINKS"
+          checked={defaultAction === 'LINKS'}
+          label="Download all PDFs links in the current page*"
+        />
+        <p style={{ fontSize: '11px' }}>
+          * If there are no PDFs available, the popup will display instead.
+        </p>
       </fieldset>
 
       <fieldset>
