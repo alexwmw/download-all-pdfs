@@ -18,7 +18,7 @@ const Settings = ({ setClose, title }) => {
     chrome.storage.local.get(['defaultAction', 'doClose']).then((result) => {
       setSettings({
         defaultAction: result.defaultAction ?? 'CHOOSE',
-        doClose: result.doClose ?? true,
+        doClose: result.doClose ?? false,
       })
     })
   }, [])
@@ -109,7 +109,7 @@ const Settings = ({ setClose, title }) => {
         <ActionInput
           value="CHOOSE"
           checked={defaultAction === 'CHOOSE'}
-          label="Choose what to do each time"
+          label="Show the extension popup"
         />
         <ActionInput
           value="TABS"

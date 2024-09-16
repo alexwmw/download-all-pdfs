@@ -1,16 +1,31 @@
 import TitledList from './TitledList'
 import Spinner from './Spinner'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faFileArrowDown } from '@fortawesome/free-solid-svg-icons'
 
-const QueueContent = ({ items, itemsMax }) => {
-  const queueItems = items.map((tab, index) => {
+const QueueContent = ({ items, itemsMax, originalQueue }) => {
+  const queueItems = originalQueue.map((tab, index) => {
     return (
       <li key={index}>
-        <Spinner />
+        {tab.finished ? (
+          <FontAwesomeIcon
+            style={{
+              fontSize: '21px',
+              color: 'darkslategray',
+              marginInline: '2.5px',
+            }}
+            icon={faFileArrowDown}
+          />
+        ) : (
+          <Spinner />
+        )}
         <span title={tab.url}>{tab.title}</span>
       </li>
     )
   })
-  const title = `Downloading ${items.length} of ${itemsMax} item${items.length === 1 ? '' : 's'}`
+  const title = items.length
+    ? `Initiating ${items.length} of ${itemsMax} download${items.length === 1 ? '' : 's'}`
+    : `All downloads initiated`
 
   return <TitledList title={title} items={queueItems} />
 }

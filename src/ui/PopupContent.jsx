@@ -8,6 +8,7 @@ const PopupContent = ({
   history,
   queue,
   queueMax,
+  originalQueue,
   currentContent,
   download,
   closeSettings,
@@ -17,8 +18,13 @@ const PopupContent = ({
       {
         {
           SETTINGS: <Settings setClose={closeSettings} />,
-          PROGRESS: <QueueContent items={queue} itemsMax={queueMax} />,
-          SUCCESS: <h4>{`${queueMax} PDFs were downloaded`}</h4>,
+          PROGRESS: (
+            <QueueContent
+              items={queue}
+              itemsMax={queueMax}
+              originalQueue={originalQueue}
+            />
+          ),
           BUTTONS: <MainButtons download={download} />,
           HISTORY: <HistoryContent items={history} />,
         }[currentContent]

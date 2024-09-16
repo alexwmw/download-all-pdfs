@@ -19,6 +19,7 @@ const Popup = () => {
   const { errors } = useGetErrors()
   const downloadItem = useWhatToDownload({ tabPdfs, linkPdfs })
   const [queueMax, setQueueMax] = useState(0)
+  const [originalQueue, setOriginQueue] = useState([])
 
   const { initiated, download } = useInitDownload(downloadItem)
 
@@ -30,11 +31,25 @@ const Popup = () => {
 
   const WHAT_TO_DISPLAY = useWhatToDisplay({
     queue,
-    tabPdfs,
-    linkPdfs,
     showSettings,
     initiated,
   })
+
+  useEffect(() => {
+    if (queue.length > originalQueue.length) setOriginQueue([...queue])
+    else {
+      setOriginQueue((q) => {
+        const newQ = [...q]
+        for (const item of newQ) {
+          if (!item.finished) {
+            item.finished = true
+            break
+          }
+        }
+        return newQ
+      })
+    }
+  }, [queue])
 
   const settingButton = !showSettings && (
     <TertiaryButton
@@ -50,6 +65,7 @@ const Popup = () => {
       <PopupContent
         currentContent={WHAT_TO_DISPLAY}
         queue={queue}
+        originalQueue={originalQueue}
         queueMax={queueMax}
         history={history}
         errors={errors}

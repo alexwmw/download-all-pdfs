@@ -112,7 +112,7 @@ const download = async (item, setFinished) => {
         setFinished()
         return
       }
-      if ((doClose ?? true) && item.hasOwnProperty('id')) {
+      if ((doClose ?? false) && item.hasOwnProperty('id')) {
         setTimeout(() => chrome.tabs.remove(item.id), 1000)
       }
 

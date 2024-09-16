@@ -3,7 +3,7 @@ import { isPdfUrl } from './utility/utilities'
 
 const getPdfLinks = async () => {
   const pdfLinks = []
-  const anchors = document.querySelectorAll('a[href]')
+  const anchors = document.querySelectorAll('a[href^="http"]')
   for (const anchor of anchors) {
     const href = anchor.href
     if (!href) continue
