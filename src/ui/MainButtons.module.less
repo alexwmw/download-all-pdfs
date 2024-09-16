@@ -18,6 +18,7 @@
     svg {
       position: relative;
       top: 1px;
+      transition: scale 0.6s;
     }
 
     &.disabled {
@@ -35,18 +36,8 @@
 
 
       &:not(.disabled) {
-        @keyframes download {
-          from {
-            transform: translateY(-3px);
-            scale: 1.05;
-          }
-          to {
-            transform: translateY(0);
-          }
-        }
-
         svg {
-          animation: download 0.6s ease;
+          scale: 1.05;
         }
       }
     }
