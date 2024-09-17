@@ -1,6 +1,13 @@
 // content.js
 import { isPdfUrl } from './utility/utilities'
 
+function generateHexId() {
+  // Generate a 16-character hex string (base-16)
+  return (
+    Date.now().toString(16) + Math.random().toString(16).substring(2)
+  ).substring(0, 16)
+}
+
 const getPdfLinks = async () => {
   const pdfLinks = []
   const anchors = document.querySelectorAll('a[href^="http"]')
@@ -21,6 +28,7 @@ const getPdfLinks = async () => {
     const thisItem = {
       url: href,
       title: title,
+      id: generateHexId(),
     }
 
     pdfLinks.push(thisItem)

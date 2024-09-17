@@ -5,6 +5,7 @@ import { useState } from 'react'
 import useGetCurrentPdfs from '../hooks/useGetCurrentPdfs'
 import { PrimaryButton } from './Buttons'
 import ItemList from './ItemList'
+import { initDownload } from '../utility/utilities'
 
 const MainButtonListItem = ({
   title,
@@ -50,9 +51,8 @@ const MainButtonListItem = ({
   )
 }
 
-const MainButtons = ({ download }) => {
+const MainButtons = ({}) => {
   const { tabPdfs, linkPdfs } = useGetCurrentPdfs()
-  const [downloadItem, setDownloadItem] = useState(undefined)
 
   const tabsItem = {
     title: tabPdfs?.length
@@ -60,7 +60,7 @@ const MainButtons = ({ download }) => {
       : 'Download PDFs open in current tabs',
 
     disabled: tabPdfs?.length === 0 ?? true,
-    action: () => setDownloadItem(tabPdfs),
+    action: () => initDownload(tabPdfs),
     items: tabPdfs,
     adviceTitle: 'No PDFs found open in current tabs',
     advice:
@@ -72,14 +72,12 @@ const MainButtons = ({ download }) => {
       : 'Download PDFs links found on page',
 
     disabled: linkPdfs?.length === 0 ?? true,
-    action: () => setDownloadItem(linkPdfs),
+    action: () => initDownload(linkPdfs),
     items: linkPdfs,
     adviceTitle: 'No PDFs links found in current page',
     advice:
       "The extension could not find any PDFs links in the current page. PDF links are hyperlinks within a web page that point to a PDF resource. They are identified by a URL that ends in '.pdf'.",
   }
-
-  download(downloadItem)
 
   return (
     <ul className={classes.mainButtons}>
