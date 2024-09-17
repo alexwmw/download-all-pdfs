@@ -96,31 +96,6 @@ const handleGetIsPdfTab = (request, sender, sendResponse) => {
 }
 chrome.runtime.onMessage.addListener(handleGetIsPdfTab)
 
-const download = async (item, setFinished) => {
-  const { doClose, errors } = await chrome.storage.local.get([
-    'doClose',
-    'errors',
-  ])
-  chrome.downloads.download(
-    {
-      url: item.url,
-    },
-    (downloadId) => {
-      if (downloadId === undefined) {
-        console.error('Error downloading:', item.url)
-        chrome.storage.local.set({ errors: [item, ...(errors ?? [])] })
-        setFinished()
-        return
-      }
-      if ((doClose ?? false) && item.hasOwnProperty('id')) {
-        setTimeout(() => chrome.tabs.remove(item.id), 1000)
-      }
-
-      setFinished()
-    }
-  )
-}
-
 const addItemsToQueue = async (request, sender, sendResponse) => {
   if (request.action === 'download') {
     const storage = await chrome.storage.session.get()
@@ -130,16 +105,51 @@ const addItemsToQueue = async (request, sender, sendResponse) => {
   }
 }
 
-const queueListener = (changes, area) => {
+let currentDownload = ''
+
+const queueListener = async (changes, area) => {
   if (area !== 'session') return
-  const queueValue = changes.queue?.newValue ?? []
-  if (queueValue.length > 0) {
-    const queue = [...queueValue]
-    const item = queue.shift()
-    download(item, () => {
-      chrome.storage.session.set({ queue })
-    })
+  const queue = changes.queue?.newValue ?? []
+  if (queue.length === 0) return
+
+  const item = queue[0]
+
+  if (currentDownload === item.id) return
+  currentDownload = item.id
+
+  const downloadId = await chrome.downloads.download({
+    url: item.url,
+  })
+
+  async function finish() {
+    const { queue } = await chrome.storage.session.get(['queue'])
+    const newQueue = queue.slice(1)
+    chrome.storage.session.set({ queue: newQueue })
+    chrome.downloads.onChanged.removeListener(listener)
+    currentDownload = ''
   }
+
+  function listener(downloadDelta) {
+    if (downloadDelta.id !== downloadId) return
+    if (downloadDelta.error || downloadDelta.endTime) {
+      finish()
+    }
+    return true
+  }
+
+  if (downloadId === undefined) {
+    console.error('Error downloading:', item.url)
+    finish()
+    return true
+  }
+
+  const { doClose } = await chrome.storage.local.get(['doClose'])
+  if ((doClose ?? false) && item.hasOwnProperty('id')) {
+    chrome.tabs.remove(item.id)
+  }
+
+  chrome.downloads.onChanged.addListener(listener)
+
   return true
 }
 
