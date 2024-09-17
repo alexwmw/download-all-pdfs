@@ -1,8 +1,4 @@
-import {
-  faCaretDown,
-  faCaretLeft,
-  faCaretRight,
-} from '@fortawesome/free-solid-svg-icons'
+import { faCaretDown, faCaretRight } from '@fortawesome/free-solid-svg-icons'
 import { TertiaryButton } from './Buttons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import classes from './ItemList.module.less'

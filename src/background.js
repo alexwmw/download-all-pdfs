@@ -123,7 +123,7 @@ const queueListener = async (changes, area) => {
 
   async function finish() {
     const { queue } = await chrome.storage.session.get(['queue'])
-    const newQueue = queue.slice(1)
+    const newQueue = queue?.slice(1) ?? []
     chrome.storage.session.set({ queue: newQueue })
     chrome.downloads.onChanged.removeListener(listener)
     currentDownload = ''
@@ -131,7 +131,7 @@ const queueListener = async (changes, area) => {
 
   function listener(downloadDelta) {
     if (downloadDelta.id !== downloadId) return
-    if (downloadDelta.error || downloadDelta.endTime) {
+    if (downloadDelta.state !== 'in_progress') {
       finish()
     }
     return true
