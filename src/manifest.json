@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Download All Pdfs",
+  "name": "Download All PDFs",
   "version": "1.0.0",
   "description": "Your ultimate solution for swiftly downloading PDFs",
   "background": {
