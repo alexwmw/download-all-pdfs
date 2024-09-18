@@ -1,6 +1,9 @@
 export const isPdfUrl = (url) => {
   const resource = url.split('/').pop().toLowerCase()
-  return resource.endsWith('.pdf') || resource.includes('.pdf?')
+  return (
+    resource.endsWith('.pdf') ||
+    resource.includes('.pdf?' || resource.includes('.pdf&'))
+  )
 }
 
 export async function getCurrentPdfTabs() {
@@ -50,4 +53,11 @@ export async function initDownload(items) {
     action: 'download',
     items,
   })
+}
+
+export function generateHexId() {
+  // Generate a 16-character hex string (base-16)
+  return (
+    Date.now().toString(16) + Math.random().toString(16).substring(2)
+  ).substring(0, 16)
 }

@@ -8,18 +8,6 @@
   },
   "action": {
   },
-  "content_scripts": [
-    {
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
-      "js": [
-        "content.js"
-      ],
-      "run_at": "document_end"
-    }
-  ],
   "icons": {
     "16": "16.png",
     "48": "48.png",

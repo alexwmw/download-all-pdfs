@@ -10,17 +10,21 @@ const Settings = ({ setClose, title }) => {
   const [settings, setSettings] = useState({
     defaultAction: 'CHOOSE',
     doClose: true,
+    wait: false,
   })
-  const { doClose, defaultAction } = settings
+  const { doClose, defaultAction, wait } = settings
 
   // Load settings from Chrome storage when the component mounts
   useEffect(() => {
-    chrome.storage.local.get(['defaultAction', 'doClose']).then((result) => {
-      setSettings({
-        defaultAction: result.defaultAction ?? 'CHOOSE',
-        doClose: result.doClose ?? false,
+    chrome.storage.local
+      .get(['defaultAction', 'doClose', 'wait'])
+      .then((result) => {
+        setSettings({
+          defaultAction: result.defaultAction ?? 'CHOOSE',
+          doClose: result.doClose ?? false,
+          wait: result.wait ?? false,
+        })
       })
-    })
   }, [])
 
   // Handle changes to the defaultAction
@@ -40,6 +44,13 @@ const Settings = ({ setClose, title }) => {
       ...prevSettings,
       doClose: !prevSettings.doClose,
     }))
+  } // Handle changes to the doClose checkbox
+  const handleWaitChange = () => {
+    setHasChanges(true)
+    setSettings((prevSettings) => ({
+      ...prevSettings,
+      wait: !prevSettings.wait,
+    }))
   }
 
   // Handle form submission: Save all settings to Chrome storage
@@ -50,6 +61,7 @@ const Settings = ({ setClose, title }) => {
       .set({
         defaultAction: settings.defaultAction,
         doClose: settings.doClose,
+        wait: settings.wait,
       })
       .then(() => {
         if (setClose === undefined) window.close()
@@ -105,7 +117,7 @@ const Settings = ({ setClose, title }) => {
         <legend>
           <h4>Default action</h4>
         </legend>
-        <h5>What should happen when you click the extension icon?</h5>{' '}
+        <h5>What should happen when you click the extension icon?</h5>
         <ActionInput
           value="CHOOSE"
           checked={defaultAction === 'CHOOSE'}
@@ -116,14 +128,17 @@ const Settings = ({ setClose, title }) => {
           checked={defaultAction === 'TABS'}
           label="Download all PDFs open in current tabs*"
         />
-        <ActionInput
-          value="LINKS"
-          checked={defaultAction === 'LINKS'}
-          label="Download all PDFs links in the current page*"
-        />
-        <p style={{ fontSize: '11px' }}>
-          * If there are no PDFs available, the popup will display instead.
-        </p>
+        {/*<ActionInput*/}
+        {/*  value="LINKS"*/}
+        {/*  checked={defaultAction === 'LINKS'}*/}
+        {/*  label="Download all PDFs links in the current page*"*/}
+        {/*/>*/}
+        <div className={clsx(classes.flexRow, classes.alignStart)}>
+          <p style={{ fontSize: '11px' }}>*</p>
+          <p style={{ fontSize: '11px' }}>
+            If there are no PDFs available, the popup will display instead.
+          </p>
+        </div>
       </fieldset>
 
       <fieldset>
@@ -141,6 +156,25 @@ const Settings = ({ setClose, title }) => {
           <label htmlFor="CLOSE" style={{ fontWeight: 500 }}>
             Close PDF tabs after they have been downloaded
           </label>
+        </div>
+        <div className={classes.flexRow}>
+          <input
+            onChange={handleWaitChange}
+            id="WAIT"
+            checked={wait}
+            type="checkbox"
+            tabIndex={1}
+          />
+          <label htmlFor="WAIT" style={{ fontWeight: 500 }}>
+            Wait until download finishes before starting the next*
+          </label>
+        </div>
+        <div className={clsx(classes.flexRow, classes.alignStart)}>
+          <p style={{ fontSize: '11px' }}>*</p>
+          <p style={{ fontSize: '11px', textWrap: 'initial' }}>
+            This allows the Save File dialog to default to the previous location
+            if using 'Ask where to save each file before downloading'{' '}
+          </p>
         </div>
       </fieldset>
       <div className={classes.buttonFlexRow}>

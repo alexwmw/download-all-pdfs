@@ -7,7 +7,7 @@ import {
 
 const useGetCurrentPdfs = () => {
   const [tabPdfs, setTabPdfs] = useState([])
-  const [linkPdfs, setLinkPdfs] = useState([])
+  // const [linkPdfs, setLinkPdfs] = useState([])
   const [queue, setQueue] = useState([])
   const [activeTab, setActiveTab] = useState(null)
 
@@ -19,11 +19,11 @@ const useGetCurrentPdfs = () => {
   }, [])
 
   useEffect(() => {
-    if (activeTab) {
-      getCurrentActiveTabPdfLinks(activeTab.id).then((links) => {
-        setLinkPdfs(links)
-      })
-    }
+    // if (activeTab) {
+    //   getCurrentActiveTabPdfLinks(activeTab.id).then((links) => {
+    //     setLinkPdfs(links)
+    //   })
+    // }
 
     const handleStorageChange = (changes, area) => {
       if (area === 'session' && changes.queue?.newValue) {
@@ -35,16 +35,16 @@ const useGetCurrentPdfs = () => {
       setTabPdfs((prevPdfs) => prevPdfs.filter((tab) => tab.id !== tabId))
     }
 
-    const handlePdfLinks = (response) => {
-      if (request.action === 'getPdfLinks') {
-        getPdfLinks()
-      }
-    }
+    // const handlePdfLinks = (response) => {
+    //   if (request.action === 'getPdfLinks') {
+    //     getPdfLinks()
+    //   }
+    // }
 
     // Add storage and tab listeners
     chrome.storage.onChanged.addListener(handleStorageChange)
     chrome.tabs.onRemoved.addListener(handleTabRemoval)
-    chrome.runtime.onMessage.addListener(handlePdfLinks)
+    // chrome.runtime.onMessage.addListener(handlePdfLinks)
 
     // Cleanup event listeners on unmount or effect rerun
     return () => {
@@ -53,7 +53,7 @@ const useGetCurrentPdfs = () => {
     }
   }, [activeTab, tabPdfs])
 
-  return { tabPdfs, linkPdfs, queue }
+  return { tabPdfs, queue }
 }
 
 export default useGetCurrentPdfs
