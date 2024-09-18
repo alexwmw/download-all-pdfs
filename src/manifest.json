@@ -16,7 +16,7 @@
   "permissions": [
     "tabs",
     "downloads",
-    "scripting",
+    "webRequest",
     "storage"
   ],
   "host_permissions": [

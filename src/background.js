@@ -1,9 +1,4 @@
-import {
-  generateHexId,
-  getActiveTab,
-  getCurrentActiveTabPdfLinks,
-  isPdfUrl,
-} from './utility/utilities'
+import { generateHexId, getActiveTab, isPdfUrl } from './utility/utilities'
 
 const PDF_TAB_IDS = []
 
@@ -30,58 +25,30 @@ const removeFromPdfTabIds = (tabId) => {
   if (index >= 0) PDF_TAB_IDS.splice(index, 1)
 }
 
-// Function to check MIME type in the tab
-const updatePdfListByMimeType = (tabId) => {
-  chrome.scripting.executeScript(
-    {
-      target: { tabId: tabId },
-      func: () => document.contentType, // Get the MIME type from the contentType property
-    },
-    (results) => {
-      if (chrome.runtime.lastError) {
-        console.log(
-          'Update pdf list by mime type',
-          { tabId },
-          'Script execution failed: ',
-          chrome.runtime.lastError
-        )
-        return
-      }
-      const mimeType = results?.[0]?.result
-      if (!mimeType) return
-      console.log('Update pdf list by mime type', { tabId, mimeType })
-      removeFromPdfTabIds(tabId)
-      if (mimeType === 'application/pdf') {
-        PDF_TAB_IDS.push(tabId)
-      }
-    }
+const headersListener = async (details) => {
+  const contentTypeHeader = details.responseHeaders.find(
+    (header) => header.name.toLowerCase() === 'content-type'
   )
+  const mimeType = contentTypeHeader ? contentTypeHeader.value : ''
+  if (mimeType.startsWith('application/pdf')) {
+    console.log('headersListener -- PDF detected', { tabId })
+    if (!PDF_TAB_IDS.includes(details.tabId)) {
+      PDF_TAB_IDS.push(details.tabId)
+    }
+  }
 }
 
-// Run the script when a new tab is created
-chrome.tabs.onCreated.addListener((tab) => {
-  updatePdfListByMimeType(tab.id)
-})
+chrome.webRequest.onHeadersReceived.addListener(
+  headersListener,
+  {
+    urls: ['http://*/*', 'https://*/*'],
+    types: ['main_frame', 'sub_frame', 'object', 'xmlhttprequest'],
+  },
+  ['responseHeaders']
+)
 
-// Run the script when a tab is updated (like URL change)
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === 'complete') {
-    // Wait until the page fully loads
-    if (tab.url.startsWith('http')) updatePdfListByMimeType(tabId)
-  }
-})
 chrome.tabs.onRemoved.addListener((tabId) => {
   removeFromPdfTabIds(tabId)
-})
-chrome.runtime.onInstalled.addListener(async (details) => {
-  const queryOptions = {
-    url: ['http://*/*', 'https://*/*'],
-  }
-  const tabs = await chrome.tabs.query(queryOptions)
-  for (const tab of tabs) {
-    const tabId = tab.id
-    if (tab.url.startsWith('http')) updatePdfListByMimeType(tabId)
-  }
 })
 
 const handleGetIsPdfTab = (request, sender, sendResponse) => {
@@ -214,14 +181,15 @@ const queueListener = async (changes, area) => {
 const setBadgeText = async (tabId) => {
   const tabPdfs = await getCurrentPdfTabs()
   // const linkPdfs = await getCurrentActiveTabPdfLinks(tabId)
-  const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
+  // const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
   let text = ''
   let icon = {
     16: '16.png',
     48: '48.png',
     128: '128.png',
   }
-  if (defaultAction === 'TABS' && tabPdfs.length > 0) {
+  // if (defaultAction === 'TABS' && tabPdfs.length > 0) {
+  if (tabPdfs.length > 0) {
     text = (tabPdfs ?? []).length.toString()
   }
   // if (defaultAction === 'LINKS' && linkPdfs.length > 0) {

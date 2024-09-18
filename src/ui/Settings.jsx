@@ -166,15 +166,12 @@ const Settings = ({ setClose, title }) => {
             tabIndex={1}
           />
           <label htmlFor="WAIT" style={{ fontWeight: 500 }}>
-            Wait until download finishes before starting the next*
+            Wait until download finishes before starting the next
+            <p style={{ fontSize: '11px', textWrap: 'initial' }}>
+              This allows the Save File dialog to default to the previous
+              location if using 'Ask where to save each file before downloading'{' '}
+            </p>
           </label>
-        </div>
-        <div className={clsx(classes.flexRow, classes.alignStart)}>
-          <p style={{ fontSize: '11px' }}>*</p>
-          <p style={{ fontSize: '11px', textWrap: 'initial' }}>
-            This allows the Save File dialog to default to the previous location
-            if using 'Ask where to save each file before downloading'{' '}
-          </p>
         </div>
       </fieldset>
       <div className={classes.buttonFlexRow}>

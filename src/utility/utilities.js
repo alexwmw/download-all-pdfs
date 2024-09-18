@@ -19,11 +19,6 @@ export async function getCurrentPdfTabs() {
     })
     const isPdfByUrl = isPdfUrl(tab.url)
     if (isPdfByType || isPdfByUrl) pdfTabs.push(tab)
-    console.log('Get current pdf tabs', {
-      tab,
-      isPdfByType,
-      isPdfByUrl,
-    })
   }
   return pdfTabs
 }

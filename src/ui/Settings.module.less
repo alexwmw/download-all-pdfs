@@ -1,7 +1,6 @@
 @import '../less/constants.less';
 
 .settings {
-
   text-wrap: pretty;
   margin-top: -6px;
 
@@ -14,20 +13,14 @@
   }
 
   input {
-    transform: translateY(-1px);
+    transform: translateY(-3px);
   }
 
   .flexRow {
     display: flex;
     gap: 6px;
-    align-items: center;
     margin-bottom: 6px;
-
-    &.alignStart {
-      align-items: start
-    }
-
-
+    align-items: start
   }
 
   .buttonFlexRow {
@@ -46,7 +39,6 @@
   border: transparent 1px solid;
 
   &:has(input[checked]) {
-
     label {
       font-weight: 500;
     }
@@ -63,7 +55,6 @@
   }
 
   p:last-of-type {
-
     margin-bottom: 0;
   }
 }

@@ -42,7 +42,6 @@ const DownloadsInProgress = ({ queue }) => {
 }
 
 const Errors = ({ errors }) => {
-  console.log(errors)
   return (
     errors.length > 0 && (
       <div className={classes.errors}>

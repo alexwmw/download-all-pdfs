@@ -1,5 +1,5 @@
 // content.js
-import { generateHexId, isPdfUrl } from './utility/utilities'
+import { isPdfUrl } from './utility/utilities'
 
 const getPdfLinks = async () => {
   const pdfLinks = []
@@ -25,7 +25,6 @@ const getPdfLinks = async () => {
 
     pdfLinks.push(thisItem)
   }
-  console.log('Get pdf links', { anchors, pdfLinks })
   return pdfLinks
 }
 
