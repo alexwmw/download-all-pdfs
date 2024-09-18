@@ -2,13 +2,19 @@ import { generateHexId, getActiveTab, isPdfUrl } from './utility/utilities'
 
 const PDF_TAB_IDS = []
 
+const DEBUG_MODE = false
+
+const log = (...args) => {
+  if (DEBUG_MODE) console.log(...args)
+}
+
 const getCurrentPdfTabs = async () => {
   const queryOptions = {
     url: ['http://*/*', 'https://*/*'],
   }
   const pdfTabs = []
   const tabs = await chrome.tabs.query(queryOptions)
-  console.log('Get current pdf tabs', {
+  log('Get current pdf tabs', {
     pdfTabsById: tabs.filter((tab) => PDF_TAB_IDS.includes(tab.id)),
     pdfTabsByUrl: tabs.filter((tab) => isPdfUrl(tab.url)),
   })
@@ -31,7 +37,7 @@ const headersListener = async (details) => {
   )
   const mimeType = contentTypeHeader ? contentTypeHeader.value : ''
   if (mimeType.startsWith('application/pdf')) {
-    console.log('headersListener -- PDF detected', { tabId })
+    log('headersListener -- PDF detected', { tabId })
     if (!PDF_TAB_IDS.includes(details.tabId)) {
       PDF_TAB_IDS.push(details.tabId)
     }
@@ -53,7 +59,7 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 
 const handleGetIsPdfTab = (request, sender, sendResponse) => {
   if (request.action === 'getIsPdfTab') {
-    console.log('Handle get is pdf tab', {
+    log('Handle get is pdf tab', {
       ...request,
       isTabPdf: PDF_TAB_IDS.includes(request.tabId),
     })
@@ -86,7 +92,7 @@ async function finishDownload(item, listener) {
   CURRENT_DOWNLOAD = ''
   const { queue } = await chrome.storage.session.get(['queue'])
   chrome.storage.session.set({ queue: queue?.slice(1) ?? [] }).then(() => {
-    console.log(
+    log(
       'queueListener -- finished',
       { CURRENT_DOWNLOAD, next: queue[1]?.url },
       item
@@ -99,7 +105,7 @@ async function finishDownload(item, listener) {
   if (item) {
     const { doClose } = await chrome.storage.local.get(['doClose'])
     if ((doClose ?? false) && item.hasOwnProperty('id')) {
-      console.log('queueListener -- closing tab', { tabId: item.id }, item)
+      log('queueListener -- closing tab', { tabId: item.id }, item)
       chrome.tabs.remove(item.id)
     }
   }
@@ -116,7 +122,7 @@ const queueListener = async (changes, area) => {
     return
   }
   CURRENT_DOWNLOAD = item.queueId
-  console.log('queueListener -- initiate', { CURRENT_DOWNLOAD }, item)
+  log('queueListener -- initiate', { CURRENT_DOWNLOAD }, item)
 
   const downloadId = await chrome.downloads.download({
     url: item.url,
@@ -128,7 +134,7 @@ const queueListener = async (changes, area) => {
       error: 'DID_NOT_CONNECT',
       item,
     })
-    console.log(
+    log(
       'queueListener -- error',
       { CURRENT_DOWNLOAD, downloadId, error: 'DID_NOT_CONNECT' },
       item
@@ -138,12 +144,12 @@ const queueListener = async (changes, area) => {
   }
   const { wait } = await chrome.storage.local.get(['wait'])
   if (wait !== true) {
-    console.log('queueListener -- did not wait', {
+    log('queueListener -- did not wait', {
       CURRENT_DOWNLOAD,
     })
     finishDownload(item)
   } else {
-    console.log('queueListener -- waiting for download', {
+    log('queueListener -- waiting for download', {
       CURRENT_DOWNLOAD,
     })
   }
@@ -157,7 +163,7 @@ const queueListener = async (changes, area) => {
           error: downloadDelta.error.current ?? 'UNKNOWN',
           item,
         })
-        console.log(
+        log(
           'queueListener -- error',
           {
             CURRENT_DOWNLOAD,
@@ -180,22 +186,15 @@ const queueListener = async (changes, area) => {
 
 const setBadgeText = async (tabId) => {
   const tabPdfs = await getCurrentPdfTabs()
-  // const linkPdfs = await getCurrentActiveTabPdfLinks(tabId)
-  // const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
   let text = ''
   let icon = {
     16: '16.png',
     48: '48.png',
     128: '128.png',
   }
-  // if (defaultAction === 'TABS' && tabPdfs.length > 0) {
   if (tabPdfs.length > 0) {
     text = (tabPdfs ?? []).length.toString()
   }
-  // if (defaultAction === 'LINKS' && linkPdfs.length > 0) {
-  //   text = (linkPdfs ?? []).length.toString()
-  // }
-  // if ((tabPdfs ?? []).length === 0 && (linkPdfs ?? []).length === 0) {
   if ((tabPdfs ?? []).length === 0) {
     icon = {
       16: '16_faded.png',
@@ -212,20 +211,17 @@ const setBadgeText = async (tabId) => {
 
 const setPopup = async (defaultAction) => {
   const tabPdfs = await getCurrentPdfTabs()
-  // const activeTab = await getActiveTab()
-  // const linkPdfs = await getCurrentActiveTabPdfLinks(activeTab.id)
 
   const hasItems =
     {
       TABS: tabPdfs.length > 0,
-      // LINKS: linkPdfs.length > 0,
     }[defaultAction] ?? false
 
   let popup = './popup.html'
   if (hasItems) {
     popup = ''
   }
-  console.log('Set popup', {
+  log('Set popup', {
     popupSet: Boolean(popup),
     defaultAction,
     hasItems: hasItems,
@@ -235,7 +231,6 @@ const setPopup = async (defaultAction) => {
 
 const handleActionClick = async (tab) => {
   const tabPdfs = await getCurrentPdfTabs()
-  // const linkPdfs = await getCurrentActiveTabPdfLinks(tab.id)
 
   const { defaultAction } = await chrome.storage.local.get(['defaultAction'])
   const storage = await chrome.storage.session.get(['queue'])
@@ -247,12 +242,6 @@ const handleActionClick = async (tab) => {
       chrome.action.setBadgeBackgroundColor({ color: 'seagreen' })
     })
   }
-  // if (defaultAction === 'LINKS' && linkPdfs.length) {
-  //   queue = [...(storage.queue ?? []), ...linkPdfs]
-  //   chrome.storage.session.set({ queue }).then(() => {
-  //     chrome.action.setBadgeBackgroundColor({ color: 'seagreen' })
-  //   })
-  // }
   return true
 }
 

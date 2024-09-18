@@ -66,23 +66,10 @@ const MainButtons = ({}) => {
     advice:
       "The extension could not find any PDFs open in current tabs. PDF tabs are tabs that display the PDF viewer, and often have a URL ending in '.pdf'.",
   }
-  // const linkItem = {
-  //   title: linkPdfs?.length
-  //     ? `Download ${linkPdfs?.length} PDF link${linkPdfs?.length === 1 ? '' : 's'} found on page`
-  //     : 'Download PDFs links found on page',
-  //
-  //   disabled: linkPdfs?.length === 0 ?? true,
-  //   action: () => initDownload(linkPdfs),
-  //   items: linkPdfs,
-  //   adviceTitle: 'No PDFs links found in current page',
-  //   advice:
-  //     "The extension could not find any PDFs links in the current page. PDF links are hyperlinks within a web page that point to a PDF resource. They are identified by a URL that ends in '.pdf'.",
-  // }
 
   return (
     <ul className={classes.mainButtons}>
       <MainButtonListItem {...tabsItem} />
-      {/*<MainButtonListItem {...linkItem} />*/}
     </ul>
   )
 }

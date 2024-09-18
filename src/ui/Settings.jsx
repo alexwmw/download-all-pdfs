@@ -128,11 +128,6 @@ const Settings = ({ setClose, title }) => {
           checked={defaultAction === 'TABS'}
           label="Download all PDFs open in current tabs*"
         />
-        {/*<ActionInput*/}
-        {/*  value="LINKS"*/}
-        {/*  checked={defaultAction === 'LINKS'}*/}
-        {/*  label="Download all PDFs links in the current page*"*/}
-        {/*/>*/}
         <div className={clsx(classes.flexRow, classes.alignStart)}>
           <p style={{ fontSize: '11px' }}>*</p>
           <p style={{ fontSize: '11px' }}>
